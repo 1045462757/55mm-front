@@ -1,58 +1,79 @@
 <template>
   <transition name="el-zoom-in-center">
-    <el-card class="action-details" v-show="show">
-      <!--头部-->
-      <div class="header">
-        <!--用户信息-->
-        <div class="user">
-          <img class="avatar" :src="action.avatar">
-          <div class="user-info">
-            <router-link :to="{path:'/userDetails',query: {userId: action.actionId}}">
-              <span id="name">{{action.name}}</span>
-            </router-link>
-            <div id="sex">
-              <img class="sex-img" src="@/assets/male.png" v-if="action.sex=='男'">
-              <img class="sex-img" src="@/assets/female.png" v-else>
+    <el-card class="card-actiondetails" v-show="showbox" shadow="hover">
+      <div slot="header">
+        <span id="title">约拍详情</span>
+      </div>
+
+      <div class="main" v-loading="loading" element-loading-text="玩命加载中...">
+        <div v-if="loadingSuccess">
+          <!--头部-->
+          <div class="header">
+            <!--用户信息-->
+            <div class="user">
+              <img class="avatar" :src="action.avatar">
+              <div class="user-info">
+                <router-link :to="{path:'/userDetails',query: {userId: action.actionId}}">
+                  <span id="name">{{action.name}}</span>
+                </router-link>
+                <div id="sex">
+                  <img class="sex-img" src="@/assets/male.png" v-if="action.sex=='男'">
+                  <img class="sex-img" src="@/assets/female.png" v-else>
+                </div>
+                <div id="type">{{action.type}}</div>
+              </div>
             </div>
-            <div id="type">{{action.type}}</div>
+
+            <!--地区-->
+            <span id="address">{{action.address}}</span>
+
+            <!--时间-->
+            <span id="time">{{action.time}}</span>
           </div>
+
+          <!--文字介绍-->
+          <div class="text">
+            <p>{{action.text}}</p>
+          </div>
+
+          <!--图片-->
+          <div class="image">
+            <el-image
+              class="img"
+              fit="fill"
+              v-for="(image,index) in action.images"
+              :key="index"
+              :src="image"
+            ></el-image>
+          </div>
+          <el-button type="primary" round id="btn" @click="sure()" :disabled="click">约拍TA</el-button>
         </div>
-
-        <!--地区-->
-        <span id="address">{{action.address}}</span>
-
-        <!--时间-->
-        <span id="time">{{action.time}}</span>
+        <Tip v-else :tip="tip" v-on:refresh="getAction()" class="tip"></Tip>
       </div>
-
-      <!--文字介绍-->
-      <div class="text">
-        <p>{{action.text}}</p>
-      </div>
-
-      <!--图片-->
-      <div class="image">
-        <!-- <img class="img" v-for="(image,index) in action.images" :key="index" :src="image"> -->
-        <el-image
-          class="img"
-          fit="fill"
-          v-for="(image,index) in action.images"
-          :key="index"
-          :src="image"
-        ></el-image>
-      </div>
-      <el-button type="primary" round id="btn" @click="sure()" :disabled="click">约拍TA</el-button>
     </el-card>
   </transition>
 </template>
 
 <script>
+import Tip from "@/components/general/Tip";
 export default {
   name: "ActionDetails",
+  components: {
+    Tip
+  },
   data() {
     return {
+      loading: true,
+      loadingSuccess: false,
+
+      tip: {
+        show: false,
+        netError: false,
+        businessError: false,
+        errorMessage: ""
+      },
       click: false,
-      show: false,
+      showbox: false,
       action: {},
       actions: [
         {
@@ -292,15 +313,26 @@ export default {
     };
   },
   mounted() {
-    var actionId = this.$route.query.actionId;
-    for (var i = 0; i < this.actions.length; i++) {
-      if (this.actions[i].actionId == actionId) {
-        this.action = this.actions[i];
-      }
-    }
-    this.show = true;
+    this.showbox = true;
+
+    this.getAction();
   },
   methods: {
+    getAction() {
+      setTimeout(
+        function() {
+          this.loading = false;
+          this.loadingSuccess = true;
+          var actionId = this.$route.query.actionId;
+          for (var i = 0; i < this.actions.length; i++) {
+            if (this.actions[i].actionId == actionId) {
+              this.action = this.actions[i];
+            }
+          }
+        }.bind(this),
+        2000
+      );
+    },
     sure() {
       this.$message({
         message: "假装约拍成功",
@@ -314,12 +346,22 @@ export default {
 };
 </script>
 
-<style>
-.action-details {
+<style scoped>
+.card-actiondetails {
   width: 95%;
   margin: 20px auto;
   border-radius: 20px;
   max-width: 1200px;
+  min-height: 800px;
+}
+#title {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 10px;
+}
+
+.main {
+  min-height: 500px;
 }
 
 .header {
@@ -390,5 +432,17 @@ export default {
   margin-bottom: 20px;
   width: 20%;
   height: 50px;
+}
+#name:hover {
+  color: brown;
+  text-decoration: underline;
+}
+#type {
+  clear: both;
+  font-size: 16px;
+  margin-left: 10px;
+  text-align: left;
+  font-weight: bold;
+  color: #7e0656;
 }
 </style>

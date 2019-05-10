@@ -1,10 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import ActionDetails from '@/components/ActionDetails'
-import Main from '@/components/Main'
-import Write from '@/components/WriteBlog'
-import About from '@/components/About'
-import UserDetails from '@/components/UserDetails'
+import ActionDetails from '@/components/action/ActionDetails'
+import Main from '@/components/action/Main'
+import WriteAction from '@/components/action/WriteAction'
+import About from '@/components/general/About'
+import UserDetails from '@/components/user/UserDetails'
+import UserMain from '@/components/user/UserMain'
+import test from '@/components/test/test'
+import test2 from '@/components/test/test2'
 
 Vue.use(Router)
 
@@ -26,8 +29,8 @@ export default new Router({
     },
     {
       path: '/write',
-      name: 'Write',
-      component: Write,
+      name: 'WriteAction',
+      component: WriteAction,
     },
     {
       path: '/about',
@@ -38,6 +41,21 @@ export default new Router({
       path: '/userDetails',
       name: 'UserDetails',
       component: UserDetails,
+    },
+    {
+      path: '/userMain',
+      name: 'UserMain',
+      component: UserMain
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: test,
+    },
+    {
+      path: '/test2',
+      name: 'test2',
+      component: test2,
     },
   ]
 })

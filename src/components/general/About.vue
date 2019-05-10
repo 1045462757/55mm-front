@@ -1,6 +1,6 @@
 <template>
   <transition name="el-zoom-in-bottom">
-    <el-card class="box-card" v-show="show">
+    <el-card class="box-card" v-show="show" shadow="hover">
       <div slot="header" class="clearfix">
         <span id="title">时间轨迹</span>
       </div>
@@ -67,7 +67,7 @@
   </transition>
 </template>
 
-<script>
+<script scoped>
 export default {
   name: "About",
   data() {
@@ -78,6 +78,7 @@ export default {
   methods: {},
   mounted() {
     this.show = true;
+    this.$refs.cropper.startCrop();
   }
 };
 </script>

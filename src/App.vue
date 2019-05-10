@@ -8,8 +8,8 @@
 </template>
 
 <script>
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/general/Header";
+import Footer from "@/components/general/Footer";
 export default {
   name: "App",
   components: { Header, Footer }
@@ -23,13 +23,12 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  /* margin-top: 60px; */
 }
 body {
   background: #e0e0e0;
 }
 * {
-  /* padding: 0px;
-  margin: 0px; */
+  padding: 0px;
+  margin: 0px;
 }
 </style>

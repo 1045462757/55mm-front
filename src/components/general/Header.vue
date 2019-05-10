@@ -18,16 +18,25 @@
 
     <el-submenu index="3" class="tip">
       <template slot="title" class="tip">
-        <span class="title-tip el-icon-user-solid">{{title}}</span>
+        <span class="title-tip" v-if="isLogin">
+          <img
+            src="http://image.shehuiapp.com/u/822505/822505_036337370_1553935009948.jpg/t150"
+            class="avatar"
+          >
+          {{title}}
+        </span>
+        <span class="title-tip el-icon-user-solid" v-else>{{title}}</span>
       </template>
       <div v-if="isLogin">
         <el-menu-item index="3-1" class="el-icon-star-off small-tip">个人中心</el-menu-item>
         <br>
-        <el-menu-item index="3-2" class="el-icon-star-off small-tip">退出</el-menu-item>
+        <el-menu-item index="3-2" class="el-icon-star-off small-tip">我的消息</el-menu-item>
+        <br>
+        <el-menu-item index="3-3" class="el-icon-star-off small-tip">退出</el-menu-item>
       </div>
 
       <div v-else>
-        <el-menu-item index="3-3" class="el-icon-star-off small-tip">登录|注册</el-menu-item>
+        <el-menu-item index="3-4" class="el-icon-star-off small-tip">登录|注册</el-menu-item>
       </div>
     </el-submenu>
     <el-dialog
@@ -37,7 +46,7 @@
       center
       :close-on-click-modal="false"
       class="dialog"
-      fullscreen="true"
+      :fullscreen="true"
     >
       <el-tabs type="border-card" lazy="true" class="tab">
         <el-tab-pane label="登录">
@@ -217,23 +226,32 @@ export default {
         this.$router.push("/write");
       } else if (key == "3-1") {
         this.activeIndex = "3";
+        this.$router.push("/userMain");
+      } else if (key == "3-2") {
+        this.activeIndex = "3";
         this.$message({
           message: "尚在开发",
           type: "info",
           center: true,
           duration: 2000
         });
-      } else if (key == "3-2") {
-        this.activeIndex = "3";
-        this.$message({
-          message: "退出成功",
-          type: "success",
-          center: true,
-          duration: 2000
-        });
-        this.title = "游客";
-        this.isLogin = false;
       } else if (key == "3-3") {
+        this.activeIndex = "3";
+        this.$confirm("确认退出吗", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(() => {
+          this.$notify({
+            message: "退出成功",
+            type: "success",
+            center: true,
+            duration: 2000
+          });
+          this.title = "游客";
+          this.isLogin = false;
+        });
+      } else if (key == "3-4") {
         this.activeIndex = "3";
         this.centerDialogVisible = true;
       }
@@ -241,13 +259,13 @@ export default {
     login(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$message({
+          this.$notify({
             message: "登录成功",
             type: "success",
             center: true,
             duration: 2000
           });
-          this.title = "昵称";
+          this.title = "小可爱";
           this.isLogin = true;
           this.centerDialogVisible = false;
           this.loginForm.password = "";
@@ -265,7 +283,6 @@ export default {
             center: true,
             duration: 2000
           });
-          this.centerDialogVisible = false;
           this.registerForm.account = "";
           this.registerForm.password = "";
           this.registerForm.checkPass = "";
@@ -339,6 +356,11 @@ export default {
   width: 500px;
   margin: 0 auto;
   max-width: 500px;
+}
+
+.avatar {
+  width: 40px;
+  border-radius: 50%;
 }
 </style>
 

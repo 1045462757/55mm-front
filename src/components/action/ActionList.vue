@@ -59,14 +59,12 @@ export default {
 
 <style scoped>
 .action-list {
-  width: 95%;
+  width: 100%;
   margin: 20px auto;
   border-radius: 20px;
   max-width: 950px;
 }
-/* .action-list:hover {
-  background: #c8cfd4;
-} */
+
 .header {
   width: 100%;
   height: 60px;
@@ -74,18 +72,6 @@ export default {
 .user {
   width: 30%;
   float: left;
-}
-#address {
-  width: 45%;
-  font-size: 18px;
-  float: left;
-  color: #e24545;
-}
-#time {
-  width: 10%;
-  float: right;
-  font-size: 18px;
-  color: rgb(124, 71, 19);
 }
 .avatar {
   width: 60px;
@@ -118,6 +104,19 @@ export default {
   font-weight: bold;
   color: #7e0656;
 }
+#address {
+  width: 45%;
+  font-size: 18px;
+  float: left;
+  color: #e24545;
+}
+#time {
+  width: 10%;
+  float: right;
+  font-size: 18px;
+  color: #a04747;
+}
+
 .text {
   width: 80%;
   margin: 20px auto;
@@ -138,6 +137,7 @@ export default {
 a {
   text-decoration: none;
 }
+
 .image {
   width: 100%;
   margin-top: 20px;
@@ -145,6 +145,6 @@ a {
 .img {
   width: 200px;
   height: 200px;
-  margin-left: 5px;
+  margin-left: 10px;
 }
 </style>

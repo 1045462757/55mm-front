@@ -1,6 +1,6 @@
 <template>
     <transition name="el-zoom-in-top">
-      <el-card class="box-card" v-show="show">
+      <el-card class="box-card" v-show="show" shadow="hover">
         <div slot="header" class="clearfix">
           <span id="title">发表你的约拍</span>
         </div>
@@ -77,7 +77,7 @@ const toolbarOptions = [
   ["clean"]
 ];
 export default {
-  name: "WriteBlog",
+  name: "WriteAction",
   data() {
     return {
       show: false,
