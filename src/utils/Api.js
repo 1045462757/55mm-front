@@ -22,66 +22,54 @@ const globalAPI = {
     RetrieUserInformationApi: http + '/user/information',
 
     //获取其他用户信息(GET)(finish)
-    RetrieOtherUserInformationApi: http + '/user/information/others',
+    // RetrieOtherUserInformationApi: http + '/user/information/others',
 
     //修改用户信息(PUT)(finish)
     UpdateUserInformationApi: http + '/user/information',
 
     //上传头像(POST)(finish)
-    UpdateUserApi: http + '/avatar',
+    UpdateUserApi: http + '/user/avatar',
 
     //关注用户(POST)(finish)
-    CreateUserCollectionApi: http + '/userCollection',
+    // CreateUserCollectionApi: http + '/userCollection',
 
     //取消关注(DELETE)(finish)
-    DeleteUserCollectionApi: http + '/userCollection',
+    // DeleteUserCollectionApi: http + '/userCollection',
 
     //找回密码(PUT)(finish)
-    UpdatePasswordByEmailApi: http + '/user/password',
+    // UpdatePasswordByEmailApi: http + '/user/password',
 
     //修改密码(PUT)(finish)
-    UpdatePasswordApi: http + '/user/information/password',
+    UpdatePasswordApi: http + '/user/password',
 
 
     /**
      * Restful Api
-     * 博客
+     * 动态
      */
-    //发表博客(POST)(finish)
-    CreateBlogApi: http + '/blog',
+    //发表动态(POST)(finish)
+    CreateActionApi: http + '/action',
 
-    //删除博客(DELETE)(finish)
-    DeleteBlogApi: http + '/blog',
+    //删除动态(DELETE)(finish)
+    DeleteActionApi: http + '/action',
 
-    //修改博客(PUT)(finish)
-    UpdateBlogApi: http + '/blog',
+    //修改动态(PUT)(finish)
+    UpdateActionApi: http + '/action',
 
-    //获取指定博客(GET)(finish)
-    RetrieBlogApi: http + '/blog',
+    //获取指定动态(GET)(finish)
+    RetrieActionApi: http + '/action',
 
-    //获取博客集合(GET)(finish)
-    RetrieveBlogListApi: http + '/blog/user',
+    //获取动态集合(GET)(finish)
+    RetrieveActionListApi: http + '/action/user',
 
-    //收藏博客(POST)(finish)
-    CreateBlogCollectionApi: http + '/blogCollection',
+    //收藏动态(POST)(finish)
+    CreateActionCollectionApi: http + '/actionCollection',
 
     //取消收藏(DELETE)(finish)
-    DeleteBlogCollectionApi: http + '/blogCollection',
+    DeleteActionCollectionApi: http + '/actionCollection',
 
     //上传图片(POST)(finish)
-    CreateBlogImageApi: http + '/blog/image',
-
-
-    /**
-     * Restful Api
-     * 评论
-     * 2019年4月4日16:15:20
-     */
-    //发表评论(POST)(finish)
-    CreateRemarkApi: http + '/remark',
-
-    //删除评论(DELETE)(finish)
-    DeleteRemarkApi: http + '/remark',
+    CreateActionImageApi: http + '/action/image',
 
 
     /**

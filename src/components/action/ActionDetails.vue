@@ -50,6 +50,9 @@
         </div>
         <Tip v-else :tip="tip" v-on:refresh="getAction()" class="tip"></Tip>
       </div>
+      <BackTop :height="100" :bottom="30" :duration="1500">
+        <div class="top">返回顶端</div>
+      </BackTop>
     </el-card>
   </transition>
 </template>
@@ -444,5 +447,12 @@ export default {
   text-align: left;
   font-weight: bold;
   color: #7e0656;
+}
+.top {
+  padding: 10px;
+  background: rgba(0, 153, 229, 0.7);
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
 }
 </style>

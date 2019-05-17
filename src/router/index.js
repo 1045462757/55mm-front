@@ -7,7 +7,6 @@ import About from '@/components/general/About'
 import UserDetails from '@/components/user/UserDetails'
 import UserMain from '@/components/user/UserMain'
 import test from '@/components/test/test'
-import test2 from '@/components/test/test2'
 
 Vue.use(Router)
 
@@ -31,6 +30,9 @@ export default new Router({
       path: '/write',
       name: 'WriteAction',
       component: WriteAction,
+      meta: {
+        requireAuth: true
+      },
     },
     {
       path: '/about',
@@ -45,17 +47,15 @@ export default new Router({
     {
       path: '/userMain',
       name: 'UserMain',
-      component: UserMain
+      component: UserMain,
+      meta: {
+        requireAuth: true
+      },
     },
     {
       path: '/test',
       name: 'test',
       component: test,
-    },
-    {
-      path: '/test2',
-      name: 'test2',
-      component: test2,
     },
   ]
 })

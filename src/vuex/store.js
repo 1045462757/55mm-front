@@ -202,7 +202,7 @@ var state = {
             ]
         }
     ],
-    userInfo: {},
+    userInfo: "",
 }
 
 var mutations = {

@@ -1,54 +1,50 @@
 <template>
   <el-menu
     :default-active="activeIndex"
-    class="el-menu-demo"
+    class="menu"
     mode="horizontal"
     @select="handleSelect"
     background-color="#545c64"
     text-color="#fff"
     active-text-color="#ffd04b"
   >
-    <el-menu-item class="tip">
+    <!--logo-->
+    <el-menu-item class="menu-item">
       <img width="50px" src="@/assets/logo.png">
-      <span id="title">55mm</span>
+      <span id="logo-title">55mm</span>
     </el-menu-item>
-    <el-menu-item index="1" class="tip el-icon-s-home">首页</el-menu-item>
 
-    <el-menu-item index="2" class="tip el-icon-camera-solid" :disabled="!isLogin">发表</el-menu-item>
+    <el-menu-item index="1" class="menu-item el-icon-s-home">首页</el-menu-item>
 
-    <el-submenu index="3" class="tip">
-      <template slot="title" class="tip">
-        <span class="title-tip" v-if="isLogin">
-          <img
-            src="http://image.shehuiapp.com/u/822505/822505_036337370_1553935009948.jpg/t150"
-            class="avatar"
-          >
-          {{title}}
+    <el-menu-item index="2" class="menu-item el-icon-edit" :disabled="!isLogin">发表</el-menu-item>
+
+    <el-submenu index="3" class="menu-item" :show-timeout="0" :hide-timeout="0">
+      <!--二级菜单标题-->
+      <template slot="title">
+        <span v-if="isLogin" class="submenu-title">
+          <img :src="avatar" class="avatar">
+          {{name}}
         </span>
-        <span class="title-tip el-icon-user-solid" v-else>{{title}}</span>
+        <span class="submenu-title el-icon-user-solid" v-else>{{name}}</span>
       </template>
+
+      <!--未登录-->
       <div v-if="isLogin">
-        <el-menu-item index="3-1" class="el-icon-star-off small-tip">个人中心</el-menu-item>
-        <br>
-        <el-menu-item index="3-2" class="el-icon-star-off small-tip">我的消息</el-menu-item>
-        <br>
-        <el-menu-item index="3-3" class="el-icon-star-off small-tip">退出</el-menu-item>
+        <el-menu-item index="3-1" class="el-icon-s-custom sbumenu-menu-item">个人中心</el-menu-item>
+        <el-menu-item index="3-2" class="el-icon-message-solid sbumenu-menu-item">我的消息</el-menu-item>
+        <el-menu-item index="3-3" class="el-icon-circle-close sbumenu-menu-item">退出系统</el-menu-item>
       </div>
 
+      <!--已登录-->
       <div v-else>
-        <el-menu-item index="3-4" class="el-icon-star-off small-tip">登录|注册</el-menu-item>
+        <el-menu-item index="3-4" class="el-icon-star-on sbumenu-menu-item">登录|注册</el-menu-item>
       </div>
     </el-submenu>
-    <el-dialog
-      title="感谢使用55mm"
-      :visible.sync="centerDialogVisible"
-      width="30%"
-      center
-      :close-on-click-modal="false"
-      class="dialog"
-      :fullscreen="true"
-    >
-      <el-tabs type="border-card" lazy="true" class="tab">
+
+    <el-dialog :visible.sync="showLoginDialog" center :close-on-click-modal="false" width="25%">
+      <div slot="title">感谢使用55mm</div>
+      <!-- <div slot="footer">感谢使用55mm</div> -->
+      <el-tabs type="border-card" lazy="true" :stretch="true">
         <el-tab-pane label="登录">
           <el-form
             :model="loginForm"
@@ -134,13 +130,56 @@
             </el-form-item>
           </el-form>
         </el-tab-pane>
+        <el-tab-pane label="找回密码">
+          <el-form
+            :model="findPasswordForm"
+            status-icon
+            :rules="resetRules"
+            ref="findPasswordForm"
+            class="loginForm"
+          >
+            <el-form-item label="邮箱" prop="email">
+              <el-input
+                type="email"
+                v-model="findPasswordForm.email"
+                autocomplete="off"
+                clearable
+                placeholder="请输入邮箱"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button
+                class="login-btn"
+                type="primary"
+                @click="findPassword('findPasswordForm')"
+                round
+              >确定</el-button>
+            </el-form-item>
+          </el-form>
+
+          <el-dialog
+            title="正在重置密码"
+            :visible.sync="resetPassword"
+            width="30%"
+            :close-on-click-modal="false"
+            center
+            :show-close="false"
+          >
+            <span slot="footer" v-loading="true"></span>
+          </el-dialog>
+        </el-tab-pane>
       </el-tabs>
     </el-dialog>
   </el-menu>
 </template>
 
 <script>
+import { setCookie, getCookie, delCookie } from "@/utils/cookie.js";
+import store from "@/vuex/store.js";
 export default {
+  name: "Header",
+  store,
   data() {
     //校验账号
     var checkAccount = (rule, value, callback) => {
@@ -180,8 +219,13 @@ export default {
     return {
       activeIndex: "1",
       isLogin: false,
-      title: "游客",
-      centerDialogVisible: false,
+      name: "游客",
+      avatar: "",
+      showLoginDialog: false,
+      resetPassword: false,
+      findPasswordForm: {
+        email: ""
+      },
       loginForm: {
         account: "",
         password: ""
@@ -204,6 +248,16 @@ export default {
         checkPass: [
           { required: true, validator: validatePass2, trigger: "blur" }
         ],
+        email: [
+          { required: true, message: "请输入邮箱地址", trigger: "blur" },
+          {
+            type: "email",
+            message: "请输入正确的邮箱地址",
+            trigger: ["blur", "change"]
+          }
+        ]
+      },
+      resetRules: {
         email: [
           { required: true, message: "请输入邮箱地址", trigger: "blur" },
           {
@@ -242,33 +296,87 @@ export default {
           cancelButtonText: "取消",
           type: "warning"
         }).then(() => {
-          this.$notify({
+          this.$message({
             message: "退出成功",
             type: "success",
             center: true,
             duration: 2000
           });
-          this.title = "游客";
+          this.name = "游客";
           this.isLogin = false;
+          delCookie("userId");
+          delCookie("name");
+          delCookie("avatar");
+          this.$store.commit("addUserInfo", "");
+          sessionStorage.removeItem("userInfo");
+          this.$router.push("/main");
         });
       } else if (key == "3-4") {
         this.activeIndex = "3";
-        this.centerDialogVisible = true;
+        this.showLoginDialog = true;
       }
     },
     login(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$notify({
-            message: "登录成功",
-            type: "success",
-            center: true,
-            duration: 2000
-          });
-          this.title = "小可爱";
-          this.isLogin = true;
-          this.centerDialogVisible = false;
-          this.loginForm.password = "";
+          this.$Loading.start();
+
+          let data = {
+            account: this.loginForm.account,
+            password: this.loginForm.password
+          };
+
+          this.$http.post(this.globalApi.LoginApi, data).then(
+            response => {
+              this.$Loading.finish();
+
+              // console.log(response.data);
+              if (response.data.status != 200) {
+                console.log(response.data.message);
+                this.$message({
+                  message: response.data.message,
+                  type: "error",
+                  center: true,
+                  duration: 2000
+                });
+                this.loginForm.password = "";
+              } else {
+                setCookie("name", response.data.data.name, 1000 * 60);
+                setCookie("avatar", response.data.data.avatar, 1000 * 60);
+                setCookie("userId", response.data.data.userId, 1000 * 60);
+
+                //用户信息存入vuex
+                this.$store.commit("addUserInfo", response.data.data);
+
+                this.avatar = response.data.data.avatar;
+                this.name = response.data.data.name;
+
+                this.$message({
+                  message: "登录成功",
+                  type: "success",
+                  center: true,
+                  duration: 2000
+                });
+
+                this.isLogin = true;
+                this.showLoginDialog = false;
+                this.loginForm.password = "";
+              }
+            },
+            err => {
+              this.$Loading.error();
+              this.$message({
+                message: "登录失败:服务器异常",
+                type: "error",
+                center: true,
+                duration: 2000
+              });
+              this.loginForm.password = "";
+
+              //开发时使用
+              // this.isLogin = true;
+            }
+          );
         } else {
           return false;
         }
@@ -277,69 +385,167 @@ export default {
     register(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$message({
-            message: "注册成功",
-            type: "success",
-            center: true,
-            duration: 2000
-          });
-          this.registerForm.account = "";
-          this.registerForm.password = "";
-          this.registerForm.checkPass = "";
-          this.registerForm.email = "";
+          let data = {
+            account: this.registerForm.account,
+            password: this.registerForm.password,
+            email: this.registerForm.email
+          };
+
+          this.$http.post(this.globalApi.RegisterApi, data).then(
+            response => {
+              // console.log(response.data);
+
+              if (response.data.status != 200) {
+                console.log(response.data.message);
+                this.$message({
+                  message: response.data.message,
+                  type: "error",
+                  center: true,
+                  duration: 2000
+                });
+                this.registerForm.account = "";
+                this.registerForm.password = "";
+                this.registerForm.checkPass = "";
+                this.registerForm.email = "";
+              } else {
+                this.$message({
+                  message: "注册成功",
+                  type: "success",
+                  center: true,
+                  duration: 2000
+                });
+                this.registerForm.account = "";
+                this.registerForm.password = "";
+                this.registerForm.checkPass = "";
+                this.registerForm.email = "";
+              }
+            },
+            err => {
+              this.$message({
+                message: "注册失败:服务器异常",
+                type: "error",
+                center: true,
+                duration: 2000
+              });
+              this.registerForm.account = "";
+              this.registerForm.password = "";
+              this.registerForm.checkPass = "";
+              this.registerForm.email = "";
+            }
+          );
+        } else {
+          return false;
+        }
+      });
+    },
+    findPassword(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.resetPassword = true;
+
+          setTimeout(
+            function() {
+              this.resetPassword = false;
+            }.bind(this),
+            2000
+          );
+          // this.$Loading.start();
+
+          // this.showLoginDialog = true;
+
+          // let data = {
+          //   email: this.findPasswordForm.email
+          // };
+
+          // this.$http
+          //   .put(this.globalApi.UpdatePasswordByEmailApi, data, {
+          //     emulateJSON: true
+          //   })
+          //   .then(
+          //     response => {
+          //       this.$Loading.finish();
+
+          //       this.showLoginDialog = false;
+
+          //       // console.log(response.data);
+
+          //       if (response.data.status != 200) {
+          //         console.log(response.data.message);
+          //         this.$message({
+          //           message: response.data.message,
+          //           type: "error",
+          //           center: true,
+          //           duration: 2000
+          //         });
+          //         this.findPasswordForm.email = "";
+          //       } else {
+          //         this.$notify({
+          //           title: "重置密码成功",
+          //           message: "新密码已发送至邮箱",
+          //           type: "success",
+          //           duration: 5000
+          //         });
+          //         this.$router.push({ path: "/login" });
+          //       }
+          //     },
+          //     err => {
+          //       this.$Loading.error();
+
+          //       this.showLoginDialog = false;
+
+          //       this.$message({
+          //         message: "重置密码失败:服务器异常",
+          //         type: "error",
+          //         center: true,
+          //         duration: 2000
+          //       });
+          //       this.findPasswordForm.email = "";
+          //     }
+          //   );
         } else {
           return false;
         }
       });
     }
   },
-  mounted() {}
+  mounted() {
+    /*页面挂载获取cookie，如果存在account的cookie，则跳转到主页，不需登录*/
+    if (getCookie("account")) {
+      this.isLogin = true;
+      this.name = getCookie("name");
+      this.avatar = getCookie("avatar");
+    }
+  }
 };
 </script>
 
 <style scoped>
-.el-menu-demo {
+.menu {
   width: 95%;
-  margin: 0px auto;
+  margin: 10px auto;
   max-width: 1200px;
-  /* position: fixed;
-  left: 20%; */
+  font-size: 24px;
 }
-.tip {
-  font-size: 22px;
+.menu-item {
+  font-size: 24px;
   width: 25%;
-  letter-spacing: 5px;
 }
-.title-tip {
-  font-size: 22px;
-  letter-spacing: 5px;
+.submenu-title {
+  font-size: 24px;
 }
-.small-tip {
+.sbumenu-menu-item {
+  display: block;
   font-size: 18px;
   width: 100%;
-  letter-spacing: 15px;
+  letter-spacing: 10px;
   text-align: center;
   margin-top: 5px;
 }
-#title {
-  font-weight: bold;
-  color: rgb(31, 155, 144);
-  font-size: 30px;
-}
-.login-card {
-  width: 500px;
-  margin: 180px auto;
-  border-radius: 50px;
-}
 
-#login-title {
+#logo-title {
   font-size: 32px;
-  color: orangered;
-}
-
-#login-tip {
-  font-size: 20px;
-  color: darkolivegreen;
+  font-weight: bold;
+  color: #1f9b90;
 }
 
 .login-btn {
@@ -349,13 +555,7 @@ export default {
 
 .loginForm {
   margin: 0 auto;
-  padding: 0px 100px 0px 100px;
-}
-
-.tab {
-  width: 500px;
-  margin: 0 auto;
-  max-width: 500px;
+  padding: 0px 50px 0px 50px;
 }
 
 .avatar {

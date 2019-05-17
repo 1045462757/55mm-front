@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "element-ui": "^2.8.2",
+    "iview": "^3.4.1",
     "vue": "^2.5.2",
     "vue-cropper": "^0.4.9",
     "vue-image-crop-upload": "^2.5.0",

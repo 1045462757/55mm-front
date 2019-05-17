@@ -1,5 +1,5 @@
 <template>
-    <transition name="el-zoom-in-top">
+    <transition name="el-zoom-in-center">
       <el-card class="box-card" v-show="show" shadow="hover">
         <div slot="header" class="clearfix">
           <span id="title">发表你的约拍</span>
@@ -214,7 +214,7 @@ export default {
   width: 95%;
   margin: 20px auto;
   border-radius: 10px;
-  height: 1200px;
+  height: 800px;
   max-width: 1200px;
 }
 .clearfix {
