@@ -1,121 +1,129 @@
 <template>
   <transition name="el-zoom-in-center">
-    <el-card class="card-userInfo" v-show="showbox" shadow="hover">
+    <el-card class="card-userInfo" v-show="showCard" shadow="hover">
       <div slot="header">
-        <span id="card-title">个人中心</span>
+        <span id="card-title">个人信息</span>
       </div>
+
       <div class="main" v-loading="loading" element-loading-text="玩命加载中...">
         <div v-if="loadingSuccess">
+          <my-upload
+            field="avatar"
+            @crop-upload-success="cropUploadSuccess"
+            @crop-upload-fail="cropUploadFail"
+            v-model="showChangeAvatar"
+            :url="uploadAvatarUrl"
+            :params="params"
+            img-format="png"
+          ></my-upload>
+
           <!--头像-->
-          <div class="avatar">
-            <my-upload
-              field="file"
-              @crop-success="cropSuccess"
-              @crop-upload-success="cropUploadSuccess"
-              @crop-upload-fail="cropUploadFail"
-              v-model="show"
-              :url="uploadAvatar"
-              :params="params"
-              :headers="headers"
-              img-format="png"
-            ></my-upload>
-            <img :src="userInfo.avatar" class="img">
+          <img :src="userInfoForm.avatar" class="img" @click="toggleShow">
 
-            <span id="nametest">{{userInfo.name}}</span>
-            <div id="sextest">
-              <img class="sex-img" src="@/assets/male.png" v-if="userInfo.sex=='男'">
-              <img class="sex-img" src="@/assets/female.png" v-else>
-            </div>
-          </div>
+          <!--表单-->
+          <el-form ref="userInfoForm" :model="userInfoForm" :rules="userInfoRules" class="form">
+            <el-form-item label="昵称" prop="name">
+              <el-input
+                v-model="userInfoForm.name"
+                maxlength="10"
+                placeholder="请输入昵称"
+                clearable
+                @blur="validSubmit()"
+                style="width: 100%;"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="性别" prop="sex">
+              <el-select
+                v-model="userInfoForm.sex"
+                placeholder="请选择性别"
+                @blur="validSubmit()"
+                style="width: 100%;"
+              >
+                <el-option label="男" value="男"></el-option>
+                <el-option label="女" value="女"></el-option>
+                <el-option label="保密" value="保密"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="身份" prop="type">
+              <el-select
+                v-model="userInfoForm.type"
+                placeholder="请选择身份"
+                @blur="validSubmit()"
+                style="width: 100%;"
+              >
+                <el-option label="摄影师" value="摄影师"></el-option>
+                <el-option label="模特" value="模特"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="生日" prop="birthday">
+              <el-date-picker
+                type="date"
+                value-format="yyyy-MM-dd"
+                format="yyyy 年 MM 月 dd 日"
+                placeholder="请选择日期"
+                v-model="userInfoForm.birthday"
+                style="width: 100%;"
+                @blur="validSubmit()"
+              ></el-date-picker>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input
+                v-model="userInfoForm.email"
+                maxlength="25"
+                placeholder="请输入邮箱"
+                clearable
+                @blur="validSubmit()"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="手机号码" prop="phone">
+              <el-input
+                v-model="userInfoForm.phone"
+                maxlength="15"
+                placeholder="请输入手机号码"
+                clearable
+                @blur="validSubmit()"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="QQ" prop="qq">
+              <el-input
+                v-model="userInfoForm.qq"
+                maxlength="15"
+                placeholder="请输入QQ"
+                clearable
+                @blur="validSubmit()"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="微信" prop="weChat">
+              <el-input
+                v-model="userInfoForm.weChat"
+                maxlength="15"
+                placeholder="请输入微信"
+                clearable
+                @blur="validSubmit()"
+              ></el-input>
+            </el-form-item>
 
-          <!--信息-->
-          <div class="user-info">
-            <div class="user-info-main">
-              <div id="birth">
-                <span class="info-title">生日</span>
-                {{userInfo.birthday}}
-              </div>
+            <el-form-item label="个人简介">
+              <el-input
+                type="textarea"
+                v-model="userInfoForm.introduction"
+                maxlength="300"
+                placeholder="请输入简介"
+                clearable
+                @blur="validSubmit()"
+              ></el-input>
+            </el-form-item>
 
-              <div id="email">
-                <span class="info-title">邮箱</span>
-                {{userInfo.email}}
-              </div>
-
-              <div id="type">
-                <span class="info-title">身份</span>
-                {{userInfo.type}}
-              </div>
-
-              <div id="introduction">
-                <span class="info-title">简介</span>
-                {{userInfo.introduction}}
-              </div>
-            </div>
-
-            <el-dialog :visible.sync="modifyInfoDiolog" width="30%">
-              <div slot="title">修改信息</div>
-              <el-form ref="form" :model="form" :rules="rules" label-width="150px" :inline="true">
-                <el-form-item label="昵称" prop="name">
-                  <el-input v-model="form.name" maxlength="10" placeholder="请输入昵称" clearable></el-input>
-                </el-form-item>
-                <el-form-item label="性别" prop="sex">
-                  <el-select v-model="form.sex" placeholder="请选择性别">
-                    <el-option label="男" value="男"></el-option>
-                    <el-option label="女" value="女"></el-option>
-                    <el-option label="保密" value="保密"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="生日" prop="birthday">
-                  <el-date-picker
-                    type="date"
-                    value-format="yyyy-MM-dd"
-                    format="yyyy 年 MM 月 dd 日"
-                    placeholder="选择日期"
-                    v-model="form.birthday"
-                  ></el-date-picker>
-                </el-form-item>
-
-                <el-form-item label="邮箱" prop="email">
-                  <el-input
-                    type="email"
-                    v-model="form.email"
-                    autocomplete="off"
-                    clearable
-                    placeholder="请输入邮箱"
-                  ></el-input>
-                </el-form-item>
-
-                <el-form-item label="身份" prop="type">
-                  <el-select v-model="form.type" placeholder="请选择身份">
-                    <el-option label="摄影师" value="摄影师"></el-option>
-                    <el-option label="模特" value="模特"></el-option>
-                  </el-select>
-                </el-form-item>
-
-                <el-form-item label="个人简介">
-                  <el-input
-                    type="textarea"
-                    v-model="form.introduction"
-                    maxlength="300"
-                    placeholder="请输入简介"
-                    clearable
-                  ></el-input>
-                </el-form-item>
-                <br>
-                <el-form-item>
-                  <el-button type="primary" @click="onSubmit('form')">提交</el-button>
-                </el-form-item>
-              </el-form>
-            </el-dialog>
-          </div>
-
-          <div class="modify-btn">
-            <el-button type="primary" @click="toggleShow" round>修改头像</el-button>
-            <el-button type="primary" @click="modifyInfoDiolog = true" round>修改信息</el-button>
-          </div>
+            <el-form-item>
+              <el-button type="primary" @click="onSubmit('userInfoForm')" :disabled="submit">提交</el-button>
+            </el-form-item>
+          </el-form>
         </div>
         <Tip v-else :tip="tip" v-on:refresh="getUserInfo()" class="tip"></Tip>
       </div>
+      <BackTop :height="100" :bottom="30" :duration="1500">
+        <div class="top">返回顶端</div>
+      </BackTop>
     </el-card>
   </transition>
 </template>
@@ -144,18 +152,19 @@ export default {
         errorMessage: ""
       },
 
-      userInfo: {},
+      submit: true,
 
-      showbox: false,
-      modifyInfoDiolog: false,
-      form: {},
+      showCard: false,
 
-      rules: {
+      userInfoForm: {},
+
+      userInfoRules: {
         name: [
           { required: true, message: "请输入姓名", trigger: "blur" },
           { min: 2, message: "不少于2个字符", trigger: "blur" }
         ],
         sex: [{ required: true, message: "请选择性别", trigger: "change" }],
+        type: [{ required: true, message: "请选择身份", trigger: "change" }],
         birthday: [
           {
             required: true,
@@ -163,7 +172,6 @@ export default {
             trigger: "change"
           }
         ],
-        type: [{ required: true, message: "请选择身份", trigger: "change" }],
         email: [
           { required: true, message: "请输入邮箱地址", trigger: "blur" },
           {
@@ -171,29 +179,38 @@ export default {
             message: "请输入正确的邮箱地址",
             trigger: ["blur", "change"]
           }
+        ],
+        phone: [
+          { required: true, message: "请输入手机号码", trigger: "change" }
         ]
       },
 
-      show: false,
+      showChangeAvatar: false,
+
       params: {
-        token: "123456798",
-        name: "avatar",
         userId: this.$store.state.userInfo.userId
       },
-      headers: {
-        smail: "*_~"
-      },
-      uploadAvatar: this.globalApi.UpdateUserApi,
-      imgDataUrl: "" // the datebase64 url of created image
+
+      uploadAvatarUrl: this.globalApi.UpdateUserApi
     };
   },
   methods: {
+    /**
+     * 修改提交按钮是否禁用
+     */
+    validSubmit() {
+      this.submit = false;
+    },
+
+    /**
+     * 获取用户信息
+     */
     getUserInfo() {
       //vuex存在数据
       if (this.$store.state.userInfo != "") {
         this.loading = false;
         this.loadingSuccess = true;
-        this.userInfo = this.$store.state.userInfo;
+        this.userInfoForm = this.$store.state.userInfo;
       } else {
         //从服务器获取数据
 
@@ -205,9 +222,11 @@ export default {
         this.tip.businessError = false;
         this.tip.errorMessage = "";
 
+        var Info = JSON.parse(getCookie("userInfo"));
         let data = {
-          userId: getCookie("userId")
+          userId: Info.userId
         };
+
         this.$http
           .get(this.globalApi.RetrieUserInformationApi, { params: data })
           .then(
@@ -221,7 +240,7 @@ export default {
                 this.tip.businessError = true;
                 this.tip.errorMessage = response.data.message;
               } else {
-                this.userInfo = response.data.data;
+                this.userInfoForm = response.data.data;
                 //存入vuex;
                 this.$store.commit("addUserInfo", response.data.data);
               }
@@ -236,6 +255,9 @@ export default {
       }
     },
 
+    /**
+     * 提交表单
+     */
     onSubmit(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -254,18 +276,24 @@ export default {
       });
     },
 
+    /**
+     * 修改用户信息
+     */
     modifyUserInformation() {
       this.$Loading.start();
 
       let data = {
-        userId: getCookie("userId"),
-        name: this.form.name,
-        birthday: this.form.birthday,
-        email: this.form.email,
-        introduction: this.form.introduction,
-        sex: this.form.sex,
-        type: this.form.type,
-        avatar: this.userInfo.avatar
+        userId: this.userInfoForm.userId,
+        name: this.userInfoForm.name,
+        sex: this.userInfoForm.sex,
+        type: this.userInfoForm.type,
+        birthday: this.userInfoForm.birthday,
+        email: this.userInfoForm.email,
+        phone: this.userInfoForm.phone,
+        qq: this.userInfoForm.qq,
+        weChat: this.userInfoForm.weChat,
+        introduction: this.userInfoForm.introduction,
+        avatar: this.userInfoForm.avatar
       };
 
       this.$http.put(this.globalApi.UpdateUserInformationApi, data).then(
@@ -292,9 +320,10 @@ export default {
             //更新vuex
             this.$store.commit("addUserInfo", data);
 
-            setCookie("name", data.name, 1000 * 60);
+            //更新cookie
+            setCookie("userInfo", JSON.stringify(data), 1000 * 60);
 
-            this.modifyInfoDiolog = false;
+            this.submit = true;
           }
         },
         err => {
@@ -309,29 +338,41 @@ export default {
       );
     },
 
-    toggleShow() {
-      this.show = !this.show;
-    },
-    cropSuccess(imgDataUrl, field) {
-      console.log("-------- crop success --------");
-      this.imgDataUrl = imgDataUrl;
-    },
     /**
-     * upload success
+     * 弹出头像修改框
+     */
+    toggleShow() {
+      this.showChangeAvatar = !this.showChangeAvatar;
+    },
+
+    /**
+     * 头像上传成功
      *
      * [param] jsonData   服务器返回数据，已进行json转码
      * [param] field
      */
     cropUploadSuccess(jsonData, field) {
-      // console.log("-------- upload success --------");
-      // console.log(jsonData);
-      // console.log("field: " + field);
-      // console.log(jsonData.data);
-      this.userInfo.avatar = jsonData.data;
-      // console.log(this.userInfo.avatar);
+      this.userInfoForm.avatar = jsonData.data;
+
+      //头像存入vuex
+      let data = {
+        userId: this.userInfoForm.userId,
+        name: this.userInfoForm.name,
+        birthday: this.userInfoForm.birthday,
+        email: this.userInfoForm.email,
+        introduction: this.userInfoForm.introduction,
+        sex: this.userInfoForm.sex,
+        type: this.userInfoForm.type,
+        avatar: this.userInfoForm.avatar
+      };
+      this.$store.commit("addUserInfo", data);
+
+      //头像存入cookie
+      setCookie("userInfo", JSON.stringify(data), 1000 * 60);
     },
+
     /**
-     * upload fail
+     * 头像上传失败
      *
      * [param] status    server api return error status, like 500
      * [param] field
@@ -339,13 +380,11 @@ export default {
     cropUploadFail(status, field) {
       // console.log("-------- upload fail --------");
       // console.log(status.data);
-      // console.log(this.userInfo.avatar)
-      // this.userInfo.avatar = status.data;
       // console.log("field: " + field);
     }
   },
   mounted() {
-    this.showbox = true;
+    this.showCard = true;
 
     this.getUserInfo();
   }
@@ -358,7 +397,7 @@ export default {
   margin: 20px auto;
   border-radius: 20px;
   max-width: 1200px;
-  min-height: 500px;
+  min-height: 800px;
 }
 #card-title {
   font-size: 24px;
@@ -368,68 +407,26 @@ export default {
 .main {
   min-height: 500px;
 }
-.avatar {
-  width: 50%;
-  height: 400px;
-  float: left;
-}
+
 .img {
   display: block;
   border-radius: 50%;
-  width: 200px;
+  width: 150px;
+  height: 150px;
   margin: 0 auto;
 }
 
-#nametest {
-  display: inline-block;
-  font-size: 24px;
-  font-weight: bold;
-  color: brown;
-  margin-top: 10px;
+form {
+  width: 90%;
+  max-width: 320px;
+  margin: 20px auto;
 }
 
-#sextest {
-  margin-top: 10px;
-}
-
-.user-info {
-  width: 50%;
-  height: 400px;
-  float: right;
-  letter-spacing: 0px;
-}
-.user-info-main {
-  width: 100%;
-  height: 300px;
-}
-
-#birth {
-  margin-top: 0px;
-  font-size: 20px;
-  font-weight: bold;
-  width: 100%;
-  text-align: left;
-}
-#email,
-#type,
-#introduction {
-  font-size: 20px;
-  font-weight: bold;
-  width: 100%;
-  text-align: left;
-  margin-top: 50px;
-}
-
-.info-title {
-  font-size: 22px;
-  color: brown;
-}
-
-.modify-btn {
-  width: 100%;
-}
-
-#avatar-btn {
-  margin-top: 100px;
+.top {
+  padding: 10px;
+  background: rgba(0, 153, 229, 0.7);
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
 }
 </style>

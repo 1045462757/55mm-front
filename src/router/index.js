@@ -8,6 +8,9 @@ import UserDetails from '@/components/user/UserDetails'
 import UserMain from '@/components/user/UserMain'
 import test from '@/components/test/test'
 
+import User from '@/components/user/User'
+import ModifyPassword from '@/components/user/ModifyPassword'
+
 Vue.use(Router)
 
 export default new Router({
@@ -45,12 +48,25 @@ export default new Router({
       component: UserDetails,
     },
     {
-      path: '/userMain',
-      name: 'UserMain',
-      component: UserMain,
+      path: '/user',
+      name: 'User',
+      component: User,
       meta: {
         requireAuth: true
       },
+      children: [{
+        path: 'information',
+        component: UserMain,
+        meta: {
+          requireAuth: true
+        },
+      }, {
+        path: 'modifyPassword',
+        component: ModifyPassword,
+        meta: {
+          requireAuth: true
+        },
+      }]
     },
     {
       path: '/test',

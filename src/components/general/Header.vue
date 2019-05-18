@@ -23,9 +23,14 @@
       <template slot="title">
         <span v-if="isLogin" class="submenu-title">
           <img :src="avatar" class="avatar">
+          <!-- <el-image :src="avatar" class="avatar">
+            <div slot="error">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+          </el-image>-->
           {{name}}
         </span>
-        <span class="submenu-title el-icon-user-solid" v-else>{{name}}</span>
+        <span class="submenu-title el-icon-user-solid" v-else>游客</span>
       </template>
 
       <!--未登录-->
@@ -219,27 +224,30 @@ export default {
     return {
       activeIndex: "1",
       isLogin: false,
-      name: "游客",
-      avatar: "",
       showLoginDialog: false,
       resetPassword: false,
-      findPasswordForm: {
-        email: ""
-      },
+
       loginForm: {
         account: "",
         password: ""
       },
-      loginRules: {
-        account: [{ validator: checkAccount, trigger: "blur" }],
-        password: [{ validator: validatePass, trigger: "blur" }]
-      },
+
       registerForm: {
         account: "",
         password: "",
         checkPass: "",
         email: ""
       },
+
+      findPasswordForm: {
+        email: ""
+      },
+
+      loginRules: {
+        account: [{ validator: checkAccount, trigger: "blur" }],
+        password: [{ validator: validatePass, trigger: "blur" }]
+      },
+
       registerRules: {
         account: [{ required: true, validator: checkAccount, trigger: "blur" }],
         password: [
@@ -257,6 +265,7 @@ export default {
           }
         ]
       },
+
       resetRules: {
         email: [
           { required: true, message: "请输入邮箱地址", trigger: "blur" },
@@ -280,7 +289,7 @@ export default {
         this.$router.push("/write");
       } else if (key == "3-1") {
         this.activeIndex = "3";
-        this.$router.push("/userMain");
+        this.$router.push("/user");
       } else if (key == "3-2") {
         this.activeIndex = "3";
         this.$message({
@@ -302,11 +311,11 @@ export default {
             center: true,
             duration: 2000
           });
-          this.name = "游客";
           this.isLogin = false;
-          delCookie("userId");
-          delCookie("name");
-          delCookie("avatar");
+          // delCookie("userId");
+          // delCookie("name");
+          // delCookie("avatar");
+          delCookie("userInfo");
           this.$store.commit("addUserInfo", "");
           sessionStorage.removeItem("userInfo");
           this.$router.push("/main");
@@ -316,6 +325,8 @@ export default {
         this.showLoginDialog = true;
       }
     },
+
+    /**登录 */
     login(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -341,15 +352,19 @@ export default {
                 });
                 this.loginForm.password = "";
               } else {
-                setCookie("name", response.data.data.name, 1000 * 60);
-                setCookie("avatar", response.data.data.avatar, 1000 * 60);
-                setCookie("userId", response.data.data.userId, 1000 * 60);
+                //用户信息存入cookie
+
+                // setCookie("name", response.data.data.name, 1000 * 60);
+                // setCookie("avatar", response.data.data.avatar, 1000 * 60);
+                // setCookie("userId", response.data.data.userId, 1000 * 60);
+                setCookie(
+                  "userInfo",
+                  JSON.stringify(response.data.data),
+                  1000 * 60
+                );
 
                 //用户信息存入vuex
                 this.$store.commit("addUserInfo", response.data.data);
-
-                this.avatar = response.data.data.avatar;
-                this.name = response.data.data.name;
 
                 this.$message({
                   message: "登录成功",
@@ -372,9 +387,6 @@ export default {
                 duration: 2000
               });
               this.loginForm.password = "";
-
-              //开发时使用
-              // this.isLogin = true;
             }
           );
         } else {
@@ -382,9 +394,13 @@ export default {
         }
       });
     },
+
+    /**注册 */
     register(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          this.$Loading.start();
+
           let data = {
             account: this.registerForm.account,
             password: this.registerForm.password,
@@ -395,6 +411,8 @@ export default {
             response => {
               // console.log(response.data);
 
+              this.$Loading.finish();
+
               if (response.data.status != 200) {
                 console.log(response.data.message);
                 this.$message({
@@ -403,10 +421,6 @@ export default {
                   center: true,
                   duration: 2000
                 });
-                this.registerForm.account = "";
-                this.registerForm.password = "";
-                this.registerForm.checkPass = "";
-                this.registerForm.email = "";
               } else {
                 this.$message({
                   message: "注册成功",
@@ -421,16 +435,13 @@ export default {
               }
             },
             err => {
+              this.$Loading.error();
               this.$message({
                 message: "注册失败:服务器异常",
                 type: "error",
                 center: true,
                 duration: 2000
               });
-              this.registerForm.account = "";
-              this.registerForm.password = "";
-              this.registerForm.checkPass = "";
-              this.registerForm.email = "";
             }
           );
         } else {
@@ -438,6 +449,8 @@ export default {
         }
       });
     },
+
+    /**找回密码 */
     findPassword(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -509,11 +522,19 @@ export default {
     }
   },
   mounted() {
-    /*页面挂载获取cookie，如果存在account的cookie，则跳转到主页，不需登录*/
-    if (getCookie("account")) {
+    /*页面挂载获取cookie，如果存在userInfo的cookie，则已登录*/
+    if (getCookie("userInfo")) {
       this.isLogin = true;
-      this.name = getCookie("name");
-      this.avatar = getCookie("avatar");
+      //通过cookie设置vuex
+      this.$store.commit("addUserInfo", JSON.parse(getCookie("userInfo")));
+    }
+  },
+  computed: {
+    name: function() {
+      return this.$store.state.userInfo.name;
+    },
+    avatar: function() {
+      return this.$store.state.userInfo.avatar;
     }
   }
 };
@@ -528,6 +549,7 @@ export default {
 }
 .menu-item {
   font-size: 24px;
+  font-weight: bold;
   width: 25%;
 }
 .submenu-title {
@@ -540,6 +562,7 @@ export default {
   letter-spacing: 10px;
   text-align: center;
   margin-top: 5px;
+  font-weight: bold;
 }
 
 #logo-title {
@@ -560,6 +583,7 @@ export default {
 
 .avatar {
   width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 </style>

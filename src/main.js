@@ -28,12 +28,13 @@ new Vue({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requireAuth) {
-    if (getCookie("account") != "") {
+    if (getCookie("userInfo") != "") {
       iView.LoadingBar.start();
       next();
     } else {
       next({
         //提示
+        path: '/main',
       })
     }
   } else {

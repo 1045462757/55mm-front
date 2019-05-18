@@ -6,34 +6,26 @@
       </div>
       <div class="block">
         <el-timeline>
+          <el-timeline-item timestamp="2019/5/17" placement="top">
+            <el-card class="card" shadow="hover">
+              <h2>demo 1.2</h2>
+              <p>解决数据存储问题</p>
+              <p>tiga 提交于 2019年5月17日21:14:23</p>
+            </el-card>
+          </el-timeline-item>
+
           <el-timeline-item timestamp="2019/5/9" placement="top">
             <el-card class="card" shadow="hover">
-              <h2>demo 1.5</h2>
+              <h2>demo 1.1</h2>
               <p>提交github</p>
               <a href="https://github.com/1045462757/55mm" target="_Blank">55mm</a>
               <p>tiga 提交于 2019年5月9日15:01:18</p>
             </el-card>
           </el-timeline-item>
 
-          <el-timeline-item timestamp="2019/4/30" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>demo 1.4</h2>
-              <p>界面样式再次优化</p>
-              <p>tiga 提交于 2019年4月30日23:45:08</p>
-            </el-card>
-          </el-timeline-item>
-
-          <el-timeline-item timestamp="2019/4/27" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>demo 1.3</h2>
-              <p>界面样式优化</p>
-              <p>tiga 提交于 2019年4月27日20:59:20</p>
-            </el-card>
-          </el-timeline-item>
-
           <el-timeline-item timestamp="2019/4/22" placement="top">
             <el-card class="card" shadow="hover">
-              <h2>demo 1.2</h2>
+              <h2>demo 1.0</h2>
               <p>
                 1.本项目目前只涉及到前端，后端服务尚在开发，所以目前该项目的所有数据都是假的（^_^）
                 <br>2.本网站所涉及的数据来自
@@ -41,24 +33,6 @@
                 <br>3.前端基于vue 2.0 element-ui ...
               </p>
               <p>tiga 提交于 2019年4月22日19:18:17</p>
-            </el-card>
-          </el-timeline-item>
-
-          <el-timeline-item timestamp="2019/4/19" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>demo 1.1</h2>
-              <p>
-                整体框架搭建， 实现了一些
-                <span id="tip">简陋</span>的功能,还有很多坑需要踩
-              </p>
-              <p>tiga 提交于 2019年4月19日19:36:17</p>
-            </el-card>
-          </el-timeline-item>
-
-          <el-timeline-item timestamp="2019/4/13" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>demo 1.0</h2>
-              <p>tiga 提交于 2019年4月13日17:31:02</p>
             </el-card>
           </el-timeline-item>
         </el-timeline>
@@ -78,7 +52,6 @@ export default {
   methods: {},
   mounted() {
     this.show = true;
-    this.$refs.cropper.startCrop();
   }
 };
 </script>
