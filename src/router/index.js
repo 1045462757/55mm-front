@@ -10,6 +10,7 @@ import test from '@/components/test/test'
 
 import User from '@/components/user/User'
 import ModifyPassword from '@/components/user/ModifyPassword'
+import MyActions from '@/components/user/MyActions'
 
 Vue.use(Router)
 
@@ -63,6 +64,12 @@ export default new Router({
       }, {
         path: 'modifyPassword',
         component: ModifyPassword,
+        meta: {
+          requireAuth: true
+        },
+      }, {
+        path: 'myActions',
+        component: MyActions,
         meta: {
           requireAuth: true
         },

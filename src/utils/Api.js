@@ -60,13 +60,13 @@ const globalAPI = {
     RetrieActionApi: http + '/action',
 
     //获取动态集合(GET)(finish)
-    RetrieveActionListApi: http + '/action/user',
+    RetrieveActionListApi: http + '/actions',
 
     //收藏动态(POST)(finish)
-    CreateActionCollectionApi: http + '/actionCollection',
+    // CreateActionCollectionApi: http + '/actionCollection',
 
     //取消收藏(DELETE)(finish)
-    DeleteActionCollectionApi: http + '/actionCollection',
+    // DeleteActionCollectionApi: http + '/actionCollection',
 
     //上传图片(POST)(finish)
     CreateActionImageApi: http + '/action/image',
@@ -77,7 +77,7 @@ const globalAPI = {
      * 消息
      * 2019年4月12日11:33:46
      */
-    RetrieMessageApi: http + '/message'
+    // RetrieMessageApi: http + '/message'
 }
 
 export default globalAPI

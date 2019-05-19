@@ -1,33 +1,38 @@
 <template>
-  <el-card class="action-list" shadow="hover">
+  <el-card class="card-action-list" shadow="hover">
     <!--头部-->
     <div class="header">
       <!--用户信息-->
       <div class="user">
-        <img class="avatar" :src="action.avatar">
+        <img class="avatar" :src="action.author.avatar">
         <div class="user-info">
-          <router-link :to="{path:'/userDetails',query: {userId: action.actionId}}">
-            <span id="name">{{action.name}}</span>
+          <router-link :to="{path:'/userDetails',query: {userId: action.author.actionId}}">
+            <span id="name">{{action.author.name}}</span>
           </router-link>
           <div id="sex">
-            <img class="sex-img" src="@/assets/male.png" v-if="action.sex=='男'">
+            <img class="sex-img" src="@/assets/male.png" v-if="action.author.sex=='男'">
             <img class="sex-img" src="@/assets/female.png" v-else>
           </div>
-          <div id="type">{{action.type}}</div>
+          <div id="type">{{action.author.type}}</div>
         </div>
       </div>
 
       <!--地区-->
       <span id="address">{{action.address}}</span>
 
+      <!--价格-->
+      <span id="cost">{{action.cost}}元</span>
+
       <!--时间-->
-      <span id="time">{{action.time}}</span>
+      <span id="time">
+        <Time :time="action.time"></Time>
+      </span>
     </div>
 
     <!--文字介绍-->
     <div class="text">
       <router-link :to="{path:'/actionDetails',query: {actionId: action.actionId}}">
-        <span id="title">{{action.text}}</span>
+        <span id="title">{{action.title}}</span>
       </router-link>
     </div>
 
@@ -36,7 +41,7 @@
       <el-image
         class="img"
         fit="fill"
-        v-for="(image,index) in action.images"
+        v-for="(image,index) in images"
         :key="index"
         :src="image"
         lazy
@@ -49,16 +54,23 @@
 export default {
   name: "ActionList",
   data() {
-    return {};
+    return {
+      images: []
+    };
   },
   props: {
     action: Object
+  },
+  mounted() {
+    if (this.action.images != null) {
+      this.images = this.action.images.slice(0, 3);
+    }
   }
 };
 </script>
 
 <style scoped>
-.action-list {
+.card-action-list {
   width: 100%;
   margin: 20px auto;
   border-radius: 20px;
@@ -105,13 +117,21 @@ export default {
   color: #7e0656;
 }
 #address {
-  width: 45%;
+  width: 25%;
   font-size: 18px;
   float: left;
   color: #e24545;
 }
+
+#cost {
+  width: 25%;
+  font-size: 18px;
+  float: left;
+  color: #e24545;
+}
+
 #time {
-  width: 10%;
+  width: 20%;
   float: right;
   font-size: 18px;
   color: #a04747;

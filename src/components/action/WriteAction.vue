@@ -1,90 +1,128 @@
 <template>
-    <transition name="el-zoom-in-center">
-      <el-card class="box-card" v-show="show" shadow="hover">
-        <div slot="header" class="clearfix">
-          <span id="title">发表你的约拍</span>
-        </div>
+  <transition name="el-zoom-in-top">
+    <el-card class="card-writeAction" v-show="showCard" shadow="hover">
+      <div slot="header">
+        <span id="card-title">发表你的约拍</span>
+      </div>
 
-        <el-form
-          :model="ruleForm"
-          :rules="rules"
-          ref="ruleForm"
-          label-width="100px"
-          class="demo-ruleForm"
-        >
-          <el-form-item label="标题" prop="title" class="title">
+      <el-form
+        :model="ActionForm"
+        :rules="rules"
+        ref="ActionForm"
+        label-width="100px"
+        class="action-form"
+      >
+        <el-form-item label="标题" prop="title" id="title">
+          <el-input
+            v-model="ActionForm.title"
+            placeholder="请输入标题"
+            maxlength="50"
+            minlength="2"
+            clearable
+          ></el-input>
+        </el-form-item>
+
+        <div id="select">
+          <el-form-item label="地区" prop="address" id="address">
+            <el-select v-model="ActionForm.address" placeholder="请选择地区" style="width: 100%;">
+              <el-option label="北京" value="北京"></el-option>
+              <el-option label="上海" value="上海"></el-option>
+              <el-option label="天津" value="天津"></el-option>
+              <el-option label="重庆" value="重庆"></el-option>
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="价格" prop="cost" id="cost">
             <el-input
-              v-model="ruleForm.title"
-              placeholder="请输入标题"
+              v-model.number="ActionForm.cost"
+              placeholder="请输入价格"
               maxlength="50"
               minlength="2"
               clearable
             ></el-input>
           </el-form-item>
-          <br>
-          <br>
-          <el-form-item label="简介" prop="summary" class="summary">
-            <el-input
-              v-model="ruleForm.summary"
-              placeholder="请输入简介"
-              maxlength="80"
-              minlength="10"
-              clearable
-            ></el-input>
-          </el-form-item>
-          <br>
-          <br>
-          <el-upload
-            class="avatar-uploader"
-            :action="serverUrl"
-            name="img"
-            :headers="header"
-            :show-file-list="false"
-            :on-success="uploadSuccess"
-            :on-error="uploadError"
-            :before-upload="beforeUpload"
-          ></el-upload>
-          <quill-editor
-            v-model="content"
-            ref="myQuillEditor"
-            :options="editorOption"
-            @change="onEditorChange($event)"
-            id="editor"
-          ></quill-editor>
+        </div>
 
-          <div class="btn">
-            <el-button type="primary" round @click="submitForm('ruleForm',1)" icon="el-icon-edit">发表</el-button>
-            <el-button type="warning" round @click="submitForm('ruleForm',3)" icon="el-icon-edit">草稿</el-button>
-          </div>
-        </el-form>
-      </el-card>
-    </transition>
+        <div class="clear"></div>
+
+        <el-upload
+          class="avatar-uploader"
+          :action="serverUrl"
+          name="image"
+          :headers="header"
+          :show-file-list="false"
+          :on-success="uploadSuccess"
+          :on-error="uploadError"
+          :before-upload="beforeUpload"
+        ></el-upload>
+        <quill-editor
+          v-model="ActionForm.content"
+          ref="myQuillEditor"
+          :options="editorOption"
+          @change="onEditorChange($event)"
+          id="editor"
+        ></quill-editor>
+
+        <div class="btn">
+          <el-button
+            type="primary"
+            round
+            @click="submitForm('ActionForm',1)"
+            icon="el-icon-edit"
+            v-if="!permission"
+          >发表</el-button>
+          <el-button
+            type="primary"
+            round
+            @click="submitForm('ActionForm',2)"
+            icon="el-icon-edit"
+            v-else
+          >修改</el-button>
+          <!-- <el-button type="warning" round @click="submitForm('ActionForm',3)" icon="el-icon-edit">草稿</el-button> -->
+        </div>
+      </el-form>
+    </el-card>
+  </transition>
 </template>
 
 <script>
+import store from "@/vuex/store.js";
 const toolbarOptions = [
-  ["bold", "italic", "underline", "strike"], // toggled buttons
-  [{ header: 1 }, { header: 2 }], // custom button values
-  [{ list: "ordered" }, { list: "bullet" }],
-  [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-  [{ direction: "rtl" }], // text direction
-  [{ size: ["small", false, "large", "huge"] }], // custom dropdown
-  [{ header: [1, 2, 3, 4, 5, 6, false] }],
-  [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-  [{ font: [] }],
-  [{ align: [] }],
-  ["link", "image"],
-  ["clean"]
+  // ["bold", "italic", "underline", "strike"], // toggled buttons
+  // [{ header: 1 }, { header: 2 }], // custom button values
+  // [{ list: "ordered" }, { list: "bullet" }],
+  // [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+  // [{ direction: "rtl" }], // text direction
+  // [{ size: ["small", false, "large", "huge"] }], // custom dropdown
+  // [{ header: [1, 2, 3, 4, 5, 6, false] }],
+  // [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+  // [{ font: [] }],
+  // [{ align: [] }],
+  // ["link", "image"],
+  // ["clean"]
+  ["image"]
 ];
 export default {
   name: "WriteAction",
+  store,
   data() {
+    var checkAge = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("价格不能为空"));
+      }
+      setTimeout(() => {
+        if (!Number.isInteger(value)) {
+          callback(new Error("请输入数字值"));
+        } else {
+          callback();
+        }
+      }, 500);
+    };
     return {
-      show: false,
+      showCard: false,
       permission: false,
-      blogId: "",
+      ActionId: "",
       quillUpdateImg: false, // 根据图片上传状态来确定是否显示loading动画，刚开始是false,不显示
-      content: null,
       editorOption: {
         placeholder: "",
         theme: "snow", // or 'bubble'
@@ -104,17 +142,21 @@ export default {
           }
         }
       },
-      serverUrl: "", // 这里写你要上传的图片服务器地址
+      serverUrl: this.globalApi.CreateActionImageApi, // 这里写你要上传的图片服务器地址
       header: {
         // token: sessionStorage.token
       }, // 有的图片服务器要求请求头需要有token
       rules: {
         title: [{ required: true, message: "请输入标题", trigger: "blur" }],
-        summary: [{ required: true, message: "请输入简介", trigger: "blur" }]
+        address: [{ required: true, message: "请选择地区", trigger: "blur" }],
+        cost: [{ validator: checkAge, trigger: "blur" }]
       },
-      ruleForm: {
+      ActionForm: {
+        actionId: "",
         title: "",
-        summary: ""
+        address: "",
+        cost: "",
+        content: ""
       }
     };
   },
@@ -154,7 +196,7 @@ export default {
     uploadError() {
       // loading动画消失
       this.quillUpdateImg = false;
-      this.$message.error("图片插入失败");
+      this.$message.error("图片插入失败,大小不能超过2M");
     },
 
     submitForm(formName, typeNum) {
@@ -163,7 +205,7 @@ export default {
           if (typeNum == 1) {
             this.submit();
           } else if (typeNum == 2) {
-            this.modifyBlog();
+            this.modifyAction();
           } else {
             this.draft();
           }
@@ -173,23 +215,142 @@ export default {
       });
     },
 
-    //发表博客
+    //发表动态
     submit() {
-      this.$message({
-        message: "不给发表",
-        type: "info",
-        center: true,
-        duration: 2000
-      });
+      if (
+        this.ActionForm.content == null ||
+        this.ActionForm.content == undefined ||
+        this.ActionForm.content == ""
+      ) {
+        this.$message({
+          message: "请输入内容",
+          type: "warning",
+          center: true,
+          duration: 1000
+        });
+      } else {
+        this.$Loading.start();
+
+        let data = {
+          author: {
+            userId: this.$store.state.userInfo.userId
+          },
+          title: this.ActionForm.title,
+          address: this.ActionForm.address,
+          cost: this.ActionForm.cost,
+          content: this.ActionForm.content
+        };
+        // console.log(data);
+
+        this.$http.post(this.globalApi.CreateActionApi, data).then(
+          response => {
+            this.$Loading.finish();
+            // console.log(response.data);
+            if (response.data.status != 200) {
+              //failed
+              this.$message({
+                message: response.data.message,
+                type: "error",
+                center: true,
+                duration: 1000
+              });
+            } else {
+              //success
+              this.$message({
+                message: "发表成功",
+                type: "success",
+                center: true,
+                duration: 1000
+              });
+              this.ActionForm.title = "";
+              this.ActionForm.address = "";
+              this.ActionForm.cost = "";
+              this.ActionForm.content = "";
+              this.$router.push("/main");
+
+              //清空vuex
+              this.$store.commit("addMyActions", "");
+            }
+          },
+          err => {
+            this.$Loading.error();
+            this.$message({
+              message: "发表动态失败:服务器异常",
+              type: "error",
+              center: true,
+              duration: 2000
+            });
+          }
+        );
+      }
     },
 
-    //修改博客
-    modifyBlog() {
-      this.$message({
-        message: "假装修改了",
-        type: "info",
-        center: true,
-        duration: 2000
+    //修改动态
+    modifyAction() {
+      this.$confirm("确认修改吗", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        if (this.ActionForm.content == null) {
+          this.$message({
+            message: "请输入内容",
+            type: "warning",
+            center: true,
+            duration: 2000
+          });
+        } else {
+          //开始修改
+          this.$Loading.start();
+
+          let data = {
+            author: {
+              userId: this.$store.state.userInfo.userId
+            },
+            actionId: this.ActionForm.actionId,
+            title: this.ActionForm.title,
+            address: this.ActionForm.address,
+            cost: this.ActionForm.cost,
+            content: this.ActionForm.content
+          };
+
+          this.$http.put(this.globalApi.UpdateActionApi, data).then(
+            response => {
+              this.$Loading.finish();
+              // console.log(response.data);
+              if (response.data.status != 200) {
+                //failed
+                this.$message({
+                  message: response.data.message,
+                  type: "error",
+                  center: true,
+                  duration: 1000
+                });
+              } else {
+                //success
+                this.$message({
+                  message: "修改成功",
+                  type: "success",
+                  center: true,
+                  duration: 2000
+                });
+                this.$router.push("/main");
+
+                //清空vuex
+                this.$store.commit("addMyActions", "");
+              }
+            },
+            err => {
+              this.$Loading.error();
+              this.$message({
+                message: "修改动态失败:服务器异常",
+                type: "error",
+                center: true,
+                duration: 2000
+              });
+            }
+          );
+        }
       });
     },
 
@@ -204,33 +365,67 @@ export default {
     }
   },
   mounted() {
-    this.show = true;
+    this.showCard = true;
+
+    //接收参数
+    this.ActionForm.actionId = localStorage.getItem("actionId");
+    this.ActionForm.title = localStorage.getItem("title");
+    this.ActionForm.address = localStorage.getItem("address");
+    //转换数据类型
+    if (localStorage.getItem("cost")) {
+      this.ActionForm.cost = parseInt(localStorage.getItem("cost"));
+    }
+    this.ActionForm.content = localStorage.getItem("content");
+    this.permission = localStorage.getItem("permission");
+    localStorage.removeItem("actionId");
+    localStorage.removeItem("title");
+    localStorage.removeItem("address");
+    localStorage.removeItem("cost");
+    localStorage.removeItem("content");
+    localStorage.removeItem("permission");
   }
 };
 </script>
 
 <style scoped>
-.box-card {
+.card-writeAction {
   width: 95%;
   margin: 20px auto;
   border-radius: 10px;
-  height: 800px;
+  min-height: 800px;
   max-width: 1200px;
 }
-.clearfix {
-  font-size: 20px;
+
+#card-title {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 10px;
 }
-.ql-editor.ql-blank,
-.ql-editor {
-  height: 350px;
-}
-.title {
-  width: 35%;
+
+#title {
+  width: 50%;
   margin: 0 auto;
 }
-.summary {
-  width: 65%;
+
+#select {
+  width: 50%;
   margin: 0 auto;
+}
+
+#address {
+  width: 50%;
+  margin: 30px auto;
+  float: left;
+}
+
+#cost {
+  width: 50%;
+  margin: 30px auto;
+  float: right;
+}
+
+.clear {
+  clear: both;
 }
 
 #editor {
@@ -242,13 +437,9 @@ export default {
 .btn {
   margin-top: 50px;
 }
-.demo-ruleForm {
+
+.action-form {
   width: 95%;
-  margin: 0 auto;
-}
-#title{
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 5px;
+  margin: 20px auto;
 }
 </style>

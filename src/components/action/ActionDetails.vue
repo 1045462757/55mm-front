@@ -1,6 +1,6 @@
 <template>
   <transition name="el-zoom-in-center">
-    <el-card class="card-actiondetails" v-show="showbox" shadow="hover">
+    <el-card class="card-action-details" v-show="showCard" shadow="hover">
       <div slot="header">
         <span id="title">约拍详情</span>
       </div>
@@ -11,33 +11,39 @@
           <div class="header">
             <!--用户信息-->
             <div class="user">
-              <img class="avatar" :src="action.avatar">
+              <img class="avatar" :src="action.author.avatar">
               <div class="user-info">
-                <router-link :to="{path:'/userDetails',query: {userId: action.actionId}}">
-                  <span id="name">{{action.name}}</span>
+                <router-link :to="{path:'/userDetails',query: {userId: action.author.actionId}}">
+                  <span id="name">{{action.author.name}}</span>
                 </router-link>
                 <div id="sex">
                   <img class="sex-img" src="@/assets/male.png" v-if="action.sex=='男'">
                   <img class="sex-img" src="@/assets/female.png" v-else>
                 </div>
-                <div id="type">{{action.type}}</div>
+                <div id="type">{{action.author.type}}</div>
               </div>
             </div>
 
             <!--地区-->
             <span id="address">{{action.address}}</span>
 
+            <!--价格-->
+            <span id="cost">{{action.cost}}元</span>
+
             <!--时间-->
-            <span id="time">{{action.time}}</span>
+            <span id="time">
+              <Time :time="action.time"></Time>
+            </span>
           </div>
 
           <!--文字介绍-->
           <div class="text">
-            <p>{{action.text}}</p>
+            <p>{{action.title}}</p>
           </div>
 
-          <!--图片-->
+          <!--正文-->
           <div class="image">
+            <!-- <div v-html="action.content"></div> -->
             <el-image
               class="img"
               fit="fill"
@@ -46,7 +52,15 @@
               :src="image"
             ></el-image>
           </div>
-          <el-button type="primary" round id="btn" @click="sure()" :disabled="click">约拍TA</el-button>
+          <el-button
+            type="primary"
+            round
+            class="btn"
+            @click="watch()"
+            :disabled="isWatch"
+            v-if="!permisstion"
+          >约拍TA</el-button>
+          <el-button type="primary" round class="btn" @click="modify()" v-else>修改</el-button>
         </div>
         <Tip v-else :tip="tip" v-on:refresh="getAction()" class="tip"></Tip>
       </div>
@@ -75,8 +89,9 @@ export default {
         businessError: false,
         errorMessage: ""
       },
-      click: false,
-      showbox: false,
+
+      isWatch: false,
+      showCard: false,
       action: {},
       actions: [
         {
@@ -87,6 +102,7 @@ export default {
           sex: "女",
           type: "摄影师",
           address: "河北 秦皇岛",
+          cost: 150,
           time: " 5分钟前",
           text:
             "北京丫头胶片女摄一枚~阿那亚胶片写真~不互免~胶片成本过高~北京地区长期约拍-付费拍胶片写真-送组数码写真 （6张）",
@@ -107,6 +123,7 @@ export default {
           sex: "女",
           type: "模特",
           address: "山东 烟台",
+          cost: 150,
           time: " 7分钟前",
           text: "适合各种风格 节假日 寒暑假有空 不接受私房暴露的 （5张）",
           images: [
@@ -125,6 +142,7 @@ export default {
           sex: "男",
           type: "摄影师",
           address: "北京 朝阳",
+          cost: 150,
           time: " 13分钟前",
           text:
             "5.1假期我个人暂时没有安排约拍人像摄影的也可以，找我研究一下拍摄主题之类的。(7张)",
@@ -146,6 +164,7 @@ export default {
           sex: "男",
           type: "摄影师",
           address: "上海",
+          cost: 150,
           time: "36分钟前",
           text:
             "本人曾是英国nousha工作室的全职商业摄影师目前回国做自由摄影师接收范围，约拍，旅拍，儿童，婴儿，婚纱，产品约拍的价格" +
@@ -166,6 +185,7 @@ export default {
           sex: "男",
           type: "摄影爱好者",
           address: "河南郑州",
+          cost: 150,
           time: "5小时前",
           text: "毕业季约拍，价格低 （9张）",
           images: [
@@ -188,6 +208,7 @@ export default {
           sex: "女",
           type: "摄影师",
           address: "上海",
+          cost: 150,
           time: "36分钟前",
           text:
             "女摄～不互勉！少女风格（清新，甜美，日系，轻私房，汉服，和服）喜欢的小仙女来约吧～最近是花季哦～ （9张）",
@@ -211,6 +232,7 @@ export default {
           sex: "男",
           type: "摄影师",
           address: "重庆沙坪坝",
+          cost: 150,
           time: "两天前",
           text:
             "重庆大学建筑学学生一枚，有比较多的经验然后图虫签约摄影师 （6张）",
@@ -231,6 +253,7 @@ export default {
           sex: "女",
           type: "模特",
           address: "湖北武汉",
+          cost: 150,
           time: "3天前",
           text: "各种风格都可以驾驭，欢迎来找我约拍✨ （4张）",
           images: [
@@ -248,6 +271,7 @@ export default {
           sex: "女",
           type: "摄影师",
           address: "北京",
+          cost: 150,
           time: "5天前",
           text: "喜欢日系的bb们可以来约～不接创作 （3张）",
           images: [
@@ -264,6 +288,7 @@ export default {
           sex: "女",
           type: "模特",
           address: "上海",
+          cost: 150,
           time: "8天前",
           text: "身高165 想拍一组商务 （2张）",
           images: [
@@ -279,6 +304,7 @@ export default {
           sex: "男",
           type: "摄影师",
           address: "北京",
+          cost: 150,
           time: "11天前",
           text: "4.14周日拍摄一组胶片样图，有灵性衣服多的姑娘快点我 （6张）",
           images: [
@@ -298,6 +324,7 @@ export default {
           sex: "女",
           type: "模特",
           address: "北京海淀",
+          cost: 150,
           time: "14天前",
           text: "约拍写真、旅拍、私房 这些是近期拍的一组 （9张）",
           images: [
@@ -316,27 +343,73 @@ export default {
     };
   },
   mounted() {
-    this.showbox = true;
+    this.showCard = true;
 
     this.getAction();
   },
   methods: {
+    /**
+     * 获取动态
+     *  */
     getAction() {
-      setTimeout(
-        function() {
-          this.loading = false;
-          this.loadingSuccess = true;
-          var actionId = this.$route.query.actionId;
-          for (var i = 0; i < this.actions.length; i++) {
-            if (this.actions[i].actionId == actionId) {
-              this.action = this.actions[i];
-            }
+      //vuex存在数据
+      if (this.$store.state.myActions.length != 0) {
+        this.loading = false;
+        this.loadingSuccess = true;
+
+        var actionId = this.$route.query.actionId;
+
+        for (var i = 0; i < this.$store.state.myActions.length; i++) {
+          if (this.$store.state.myActions[i].actionId == actionId) {
+            this.action = this.$store.state.myActions[i];
           }
-        }.bind(this),
-        2000
-      );
+        }
+      } else {
+        //从服务器获取数据
+
+        //状态初始化
+        this.loading = true;
+        this.loadingSuccess = false;
+        this.action = {};
+        this.tip.show = false;
+        this.tip.netError = false;
+        this.tip.businessError = false;
+        this.tip.errorMessage = "";
+
+        let data = {
+          actionId: this.$route.query.actionId
+        };
+        this.$http.get(this.globalApi.RetrieActionApi, { params: data }).then(
+          response => {
+            // console.log(response.data);
+            this.loading = false;
+            this.loadingSuccess = true;
+            if (response.data.status != 200) {
+              console.log(response.data.message);
+              this.tip.show = true;
+              this.tip.businessError = true;
+              this.tip.errorMessage = response.data.message;
+            } else {
+              this.action = response.data.data;
+
+              //存入vuex;
+              // this.$store.commit("addActions", response.data.data);
+            }
+          },
+          err => {
+            this.loading = false;
+            this.loadingSuccess = false;
+            this.tip.show = true;
+            this.tip.netError = true;
+          }
+        );
+      }
     },
-    sure() {
+
+    /**
+     * 约拍
+     */
+    watch() {
       this.$message({
         message: "假装约拍成功",
         type: "success",
@@ -344,13 +417,46 @@ export default {
         duration: 2000
       });
       this.click = true;
+    },
+
+    /**
+     * 修改动态
+     */
+    modify() {
+      //判断权限
+      if (this.action.author.userId == this.$store.state.userInfo.userId) {
+        this.$router.push("/write");
+        //传递参数
+        localStorage.setItem("actionId", this.action.actionId);
+        localStorage.setItem("title", this.action.title);
+        localStorage.setItem("address", this.action.address);
+        localStorage.setItem("cost", this.action.cost);
+        localStorage.setItem("content", this.action.content);
+        localStorage.setItem("permission", true);
+      } else {
+        this.$message({
+          message: "没有权限",
+          type: "warning",
+          center: true,
+          duration: 2000
+        });
+      }
+    }
+  },
+  computed: {
+    permisstion: function() {
+      if (this.action.author.userId == this.$store.state.userInfo.userId) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 };
 </script>
 
 <style scoped>
-.card-actiondetails {
+.card-action-details {
   width: 95%;
   margin: 20px auto;
   border-radius: 20px;
@@ -405,13 +511,21 @@ export default {
   text-align: left;
 }
 #address {
-  width: 45%;
+  width: 25%;
   font-size: 18px;
   float: left;
   color: #e24545;
 }
+
+#cost {
+  width: 25%;
+  font-size: 18px;
+  float: left;
+  color: #e24545;
+}
+
 #time {
-  width: 10%;
+  width: 20%;
   float: right;
   font-size: 18px;
   color: rgb(124, 71, 19);
@@ -429,8 +543,9 @@ export default {
 }
 .img {
   margin-left: 5px;
+  margin: 10px auto;
 }
-#btn {
+.btn {
   margin-top: 40px;
   margin-bottom: 20px;
   width: 20%;

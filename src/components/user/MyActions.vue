@@ -1,30 +1,15 @@
 <template>
   <transition name="el-zoom-in-center">
-    <div v-show="show">
-      <el-card class="header" shadow="hover">
-        <div id="city">
-          <span>地区:</span>
-          <el-cascader placeholder="选择城市" :options="options" filterable change-on-select></el-cascader>
+    <div v-show="showCard">
+      <el-card
+        class="card-myActions"
+        v-loading="loading"
+        element-loading-text="玩命加载中..."
+        shadow="hover"
+      >
+        <div slot="header">
+          <span id="title">我的约拍</span>
         </div>
-
-        <div id="money">
-          <span>费用:</span>
-          <el-cascader placeholder="选择费用" :options="money"></el-cascader>
-        </div>
-
-        <div id="type">
-          <span>身份:</span>
-          <el-cascader placeholder="选择身份" :options="type"></el-cascader>
-        </div>
-
-        <div id="sex">
-          <span>性别:</span>
-          <el-cascader placeholder="选择性别" :options="sex"></el-cascader>
-        </div>
-        <div class="clear"></div>
-        <el-button type="primary" round id="btn" @click="search()">搜索</el-button>
-      </el-card>
-      <el-card class="main" v-loading="loading" element-loading-text="玩命加载中..." shadow="hover">
         <div v-if="loadingSuccess">
           <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
           <!--分页-->
@@ -53,7 +38,7 @@ import ActionList from "@/components/action/ActionList";
 import Tip from "@/components/general/Tip";
 import store from "@/vuex/store.js";
 export default {
-  name: "Main",
+  name: "MyActions",
   store,
   components: { ActionList, Tip },
   data() {
@@ -69,85 +54,9 @@ export default {
       },
 
       currentPage: 1,
-      show: false,
+      showCard: false,
       actions: [],
-      actionPages: [],
-      options: [
-        {
-          value: "beijing",
-          label: "北京"
-          // children: []
-        },
-        {
-          value: "tianjing",
-          label: "天津"
-          // children: []
-        },
-        {
-          value: "shanghai",
-          label: "上海"
-          // children: []
-        },
-        {
-          value: "chongqing",
-          label: "重庆"
-          // children: []
-        }
-      ],
-      money: [
-        {
-          value: "all",
-          label: "全部"
-        },
-        {
-          value: "0-50",
-          label: "0-50"
-        },
-        {
-          value: "50-200",
-          label: "50-200"
-        },
-        {
-          value: "200-500",
-          label: "200-500"
-        },
-        {
-          value: "500-1000",
-          label: "500-1000"
-        },
-        {
-          value: "1000--",
-          label: "1000以上"
-        }
-      ],
-      type: [
-        {
-          value: "all",
-          label: "全部"
-        },
-        {
-          value: "photographer",
-          label: "摄影师"
-        },
-        {
-          value: "model",
-          label: "模特"
-        }
-      ],
-      sex: [
-        {
-          value: "all",
-          label: "全部"
-        },
-        {
-          value: "male",
-          label: "男"
-        },
-        {
-          value: "female",
-          label: "女"
-        }
-      ]
+      actionPages: []
     };
   },
   methods: {
@@ -160,23 +69,13 @@ export default {
       );
     },
 
-    //搜索
-    search() {
-      this.$message({
-        message: "尚在开发",
-        type: "info",
-        center: true,
-        duration: 2000
-      });
-    },
-
     //获取动态
     refresh() {
       //vuex存在数据
-      if (this.$store.state.actions.length != 0) {
+      if (this.$store.state.myActions.length != 0) {
         this.loading = false;
         this.loadingSuccess = true;
-        this.actions = this.$store.state.actions;
+        this.actions = this.$store.state.myActions;
         this.actionPages = this.actions.slice(
           (this.currentPage - 1) * 10,
           this.currentPage * 10
@@ -217,7 +116,7 @@ export default {
                   this.currentPage * 10
                 );
                 //存入vuex;
-                this.$store.commit("addActions", response.data.data);
+                this.$store.commit("addMyActions", response.data.data);
               }
             },
             err => {
@@ -231,7 +130,7 @@ export default {
     }
   },
   mounted() {
-    this.show = true;
+    this.showCard = true;
 
     this.refresh();
   }
@@ -239,38 +138,21 @@ export default {
 </script>
 
 <style scoped>
-#menu {
-  margin-top: 20px;
+.card-myActions {
+  width: 95%;
+  margin: 20px auto;
+  border-radius: 20px;
+  max-width: 1200px;
+  min-height: 500px;
 }
+
 .header {
   width: 95%;
   margin: 20px auto;
   max-width: 950px;
   border-radius: 20px;
 }
-#city,
-#type {
-  width: 50%;
-  float: left;
-  margin-top: 10px;
-}
-#money,
-#sex {
-  width: 50%;
-  float: right;
-  margin-top: 10px;
-}
-#city span,
-#money span,
-#type span,
-#sex span {
-  font-size: 18px;
-  font-weight: bold;
-  margin-right: 10px;
-}
-.clear {
-  clear: both;
-}
+
 .main {
   width: 95%;
   max-width: 950px;
@@ -284,5 +166,10 @@ export default {
   color: #fff;
   text-align: center;
   border-radius: 2px;
+}
+#title {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 10px;
 }
 </style>

@@ -10,6 +10,11 @@ import VueResource from 'vue-resource'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 
+import VueQuillEditor from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
 import { getCookie } from "@/utils/cookie.js";
 
 Vue.use(ElementUI);
@@ -17,6 +22,7 @@ Vue.config.productionTip = false
 Vue.prototype.globalApi = globalApi
 Vue.use(VueResource)
 Vue.use(iView);
+Vue.use(VueQuillEditor)
 
 /* eslint-disable no-new */
 new Vue({

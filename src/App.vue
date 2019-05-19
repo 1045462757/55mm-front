@@ -44,7 +44,7 @@ export default {
   color: #2c3e50;
 }
 body {
-  background: #e0e0e0;
+  background: #e0e0e0 !important;
 }
 * {
   padding: 0px;
