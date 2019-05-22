@@ -1,29 +1,7 @@
 <template>
   <transition name="el-zoom-in-center">
     <el-card class="action-details" v-show="show" shadow="hover">
-      <div class="avatar">
-        <img
-          src="http://image.shehuiapp.com/u/67840/67840_011250952_1555906562520.jpeg/s300"
-          class="img"
-        >
-      </div>
-      <div class="info">
-        <div id="name">
-          <span id="name-text">昵称:</span>薛
-        </div>
-        <div id="sex">
-          <span id="sex-text">性别:</span>女
-        </div>
-        <div id="type">
-          <span id="type-text">身份:</span>模特
-        </div>
-        <div id="introduction">
-          <span id="introduction-text">简介:</span>欢迎互勉约拍，时间工作日晚或周末，拍摄300张以上，精修10张以上。下方是历史样片。
-        </div>
-      </div>
-      <!-- <el-button type="primary" round @click="sure()" :disabled="click">关注TA</el-button> -->
-      <div id="title">TA发布的约拍</div>
-      <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
+      <div id="title">敬请期待</div>
     </el-card>
   </transition>
 </template>
@@ -36,23 +14,7 @@ export default {
   data() {
     return {
       show: false,
-      actionPages: [
-        {
-          actionId: 10,
-          avatar:
-            "http://image.shehuiapp.com/u/67840/67840_017468121_1511951911922.jpeg/t150",
-          name: "薛",
-          sex: "女",
-          type: "模特",
-          address: "上海",
-          time: "8天前",
-          text: "身高165 想拍一组商务 （2张）",
-          images: [
-            "http://image.shehuiapp.com/u/67840/67840_011250952_1555906562520.jpeg/s300",
-            "http://image.shehuiapp.com/u/67840/67840_018030161_1555906562513.jpeg/s300"
-          ]
-        }
-      ]
+      actionPages: []
     };
   },
   methods: {
@@ -77,6 +39,7 @@ export default {
   margin: 20px auto;
   border-radius: 20px;
   max-width: 1200px;
+  min-height: 800px;
 }
 .avatar {
   width: 40%;
@@ -117,7 +80,11 @@ export default {
   text-align: left;
 }
 #title {
-  font-size: 28px;
-  margin-top: 50px;
+  font-size: 68px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -150px;
+  margin-top: -100px;
 }
 </style>

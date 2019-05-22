@@ -13,11 +13,11 @@
             <div class="user">
               <img class="avatar" :src="action.author.avatar">
               <div class="user-info">
-                <router-link :to="{path:'/userDetails',query: {userId: action.author.actionId}}">
+                <router-link :to="{path:'/userDetails',query: {userId: action.author.userId}}">
                   <span id="name">{{action.author.name}}</span>
                 </router-link>
                 <div id="sex">
-                  <img class="sex-img" src="@/assets/male.png" v-if="action.sex=='男'">
+                  <img class="sex-img" src="@/assets/male.png" v-if="action.author.sex=='男'">
                   <img class="sex-img" src="@/assets/female.png" v-else>
                 </div>
                 <div id="type">{{action.author.type}}</div>
@@ -52,15 +52,29 @@
               :src="image"
             ></el-image>
           </div>
-          <el-button
-            type="primary"
-            round
-            class="btn"
-            @click="watch()"
-            :disabled="isWatch"
-            v-if="!permisstion"
-          >约拍TA</el-button>
-          <el-button type="primary" round class="btn" @click="modify()" v-else>修改</el-button>
+          <div v-if="!permisstion">
+            <el-button
+              type="primary"
+              round
+              class="btn"
+              @click="watch()"
+              :disabled="action.isWatched"
+              v-if="!action.isWatched"
+            >约拍TA</el-button>
+
+            <el-button
+              type="danger"
+              round
+              class="btn"
+              @click="removeWatch()"
+              :disabled="!action.isWatched"
+              v-else
+            >取消约拍</el-button>
+          </div>
+          <div v-else>
+            <el-button type="primary" round class="btn" @click="modify()">修改</el-button>
+            <el-button type="danger" round class="btn" @click="remove()">删除</el-button>
+          </div>
         </div>
         <Tip v-else :tip="tip" v-on:refresh="getAction()" class="tip"></Tip>
       </div>
@@ -73,8 +87,11 @@
 
 <script>
 import Tip from "@/components/general/Tip";
+import store from "@/vuex/store.js";
+import EventVue from "@/utils/EventVue.js";
 export default {
   name: "ActionDetails",
+  store,
   components: {
     Tip
   },
@@ -90,9 +107,10 @@ export default {
         errorMessage: ""
       },
 
-      isWatch: false,
       showCard: false,
-      action: {},
+      action: {
+        isWatched: false
+      },
       actions: [
         {
           actionId: 1,
@@ -346,6 +364,12 @@ export default {
     this.showCard = true;
 
     this.getAction();
+
+    //接收刷新动态页面请求
+    //不知道为什么会发送4次请求
+    // EventVue.$on("refresh", message => {
+    //   this.getAction();
+    // });
   },
   methods: {
     /**
@@ -376,9 +400,17 @@ export default {
         this.tip.businessError = false;
         this.tip.errorMessage = "";
 
+        //判断是否登录
+        var existUserId = null;
+        if (this.$store.state.userInfo.userId) {
+          var existUserId = this.$store.state.userInfo.userId;
+        }
+
         let data = {
-          actionId: this.$route.query.actionId
+          actionId: this.$route.query.actionId,
+          userId: existUserId
         };
+
         this.$http.get(this.globalApi.RetrieActionApi, { params: data }).then(
           response => {
             // console.log(response.data);
@@ -391,6 +423,11 @@ export default {
               this.tip.errorMessage = response.data.message;
             } else {
               this.action = response.data.data;
+
+              //如未登录则设isWatched为false
+              if (existUserId == null) {
+                this.action.isWatched = false;
+              }
 
               //存入vuex;
               // this.$store.commit("addActions", response.data.data);
@@ -410,13 +447,179 @@ export default {
      * 约拍
      */
     watch() {
-      this.$message({
-        message: "假装约拍成功",
-        type: "success",
-        center: "true",
-        duration: 2000
-      });
-      this.click = true;
+      //判断是否登录
+      if (!this.$store.state.userInfo.userId) {
+        //跳转登录
+        EventVue.$emit("login");
+        return;
+      }
+
+      //判断权限
+      if (this.action.author.userId != this.$store.state.userInfo.userId) {
+        if (this.action.isWatched == false) {
+          this.$Loading.start();
+
+          let data = {
+            watcher: {
+              userId: this.$store.state.userInfo.userId
+            },
+            action: {
+              actionId: this.action.actionId
+            }
+          };
+
+          this.$http.post(this.globalApi.CreateActionWatchApi, data).then(
+            response => {
+              this.$Loading.finish();
+              // console.log(response.data);
+              if (response.data.status != 200) {
+                //failed
+                this.$message({
+                  message: response.data.message,
+                  type: "error",
+                  center: true,
+                  duration: 2000
+                });
+                // setTimeout(
+                //   function() {
+                //     this.action.isWatched = false;
+                //   }.bind(this),
+                //   2000
+                // );
+              } else {
+                //success
+                this.$message({
+                  message: "约拍成功",
+                  type: "success",
+                  center: true,
+                  duration: 2000
+                });
+
+                this.action.isWatched = true;
+              }
+            },
+            err => {
+              this.$Loading.error();
+              this.$message({
+                message: "约拍失败,服务器异常",
+                type: "error",
+                center: true,
+                duration: 2000
+              });
+              // setTimeout(
+              //   function() {
+              //     this.action.isWatched = false;
+              //   }.bind(this),
+              //   2000
+              // );
+            }
+          );
+        }
+      } else {
+        this.$message({
+          message: "没有权限",
+          type: "warning",
+          center: true,
+          duration: 2000
+        });
+      }
+    },
+
+    /**
+     * 取消约拍
+     */
+    removeWatch() {
+      //判断是否登录
+      if (!this.$store.state.userInfo.userId) {
+        //跳转登录
+        EventVue.$emit("login");
+        return;
+      }
+
+      //判断权限
+      if (this.action.author.userId != this.$store.state.userInfo.userId) {
+        if (this.action.isWatched == true) {
+          //取消约拍
+          this.$confirm("确认取消约拍吗", "提示", {
+            confirmButtonText: "真滴",
+            cancelButtonText: "手滑啦",
+            type: "warning"
+          }).then(
+            () => {
+              this.$Loading.start();
+
+              let data = {
+                watcher: {
+                  userId: this.$store.state.userInfo.userId
+                },
+                action: {
+                  actionId: this.action.actionId
+                }
+              };
+
+              this.$http
+                .delete(this.globalApi.DeleteActionWatchApi, { body: data })
+                .then(
+                  response => {
+                    //加载条结束
+                    this.$Loading.finish();
+                    // console.log(response.data);
+                    if (response.data.status != 200) {
+                      //failed
+                      this.$message({
+                        message: response.data.message,
+                        type: "error",
+                        center: true,
+                        duration: 2000
+                      });
+                      // setTimeout(
+                      //   function() {
+                      //     this.action.isWatched = true;
+                      //   }.bind(this),
+                      //   2000
+                      // );
+                    } else {
+                      //success
+                      this.$message({
+                        message: "取消约拍成功",
+                        type: "success",
+                        center: true,
+                        duration: 2000
+                      });
+
+                      this.action.isWatched = false;
+                    }
+                  },
+                  err => {
+                    this.$Loading.error();
+                    this.$message({
+                      message: "取消约拍失败:服务器异常",
+                      type: "error",
+                      center: true,
+                      duration: 2000
+                    });
+                    // setTimeout(
+                    //   function() {
+                    //     this.action.isWatched = true;
+                    //   }.bind(this),
+                    //   2000
+                    // );
+                  }
+                );
+            },
+            () => {
+              // this.action.isWatched = true;
+            }
+          );
+        }
+      } else {
+        this.$message({
+          message: "没有权限",
+          type: "warning",
+          center: true,
+          duration: 2000
+        });
+      }
     },
 
     /**
@@ -439,6 +642,76 @@ export default {
           type: "warning",
           center: true,
           duration: 2000
+        });
+      }
+    },
+
+    /**
+     *删除动态
+     */
+    remove() {
+      //判断权限
+      if (this.action.author.userId == this.$store.state.userInfo.userId) {
+        this.$confirm("确认删除该动态吗", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(() => {
+          //加载条开始
+          this.$Loading.start();
+
+          let data = {
+            author: {
+              userId: this.$store.state.userInfo.userId
+            },
+            actionId: this.action.actionId
+          };
+
+          this.$http
+            .delete(this.globalApi.DeleteActionApi, { body: data })
+            .then(
+              response => {
+                //加载条结束
+                this.$Loading.finish();
+                // console.log(response.data);
+                if (response.data.status != 200) {
+                  //failed
+                  this.$message({
+                    message: response.data.message,
+                    type: "error",
+                    center: true,
+                    duration: 2000
+                  });
+                } else {
+                  //success
+                  this.$message({
+                    message: "删除成功",
+                    type: "success",
+                    center: true,
+                    duration: 2000
+                  });
+
+                  //从vuex中删除该动态
+                  // this.$store.commit("addMyActions", "");
+                  // this.$store.commit("addActions", "");
+
+                  //清空vuex
+                  this.$store.commit("addActions", "");
+                  this.$store.commit("addMyActions", "");
+
+                  this.$router.push("/main");
+                }
+              },
+              err => {
+                this.$Loading.error();
+                this.$message({
+                  message: "删除动态失败:服务器异常",
+                  type: "error",
+                  center: true,
+                  duration: 2000
+                });
+              }
+            );
         });
       }
     }

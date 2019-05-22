@@ -17,6 +17,16 @@
       <br>
       <span>{{tip.errorMessage}}</span>
     </div>
+
+    <!--空数据(动态)-->
+    <div v-if="tip.emptyAction" class="error">
+      <span>咦,没有动态呀</span>
+      <br>
+      <span>^_^</span>
+      <br>
+      <br>
+      <el-button type="primary" @click="writeAction()" round icon="el-icon-edit">去写一个?</el-button>
+    </div>
   </div>
 </template>
 
@@ -44,6 +54,9 @@ export default {
   methods: {
     refresh() {
       this.$emit("refresh");
+    },
+    writeAction() {
+      this.$router.push("/write");
     }
   }
 };

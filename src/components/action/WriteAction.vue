@@ -240,7 +240,6 @@ export default {
           cost: this.ActionForm.cost,
           content: this.ActionForm.content
         };
-        // console.log(data);
 
         this.$http.post(this.globalApi.CreateActionApi, data).then(
           response => {
@@ -268,7 +267,20 @@ export default {
               this.ActionForm.content = "";
               this.$router.push("/main");
 
+              // var newAction = response.data.data;
+              // newAction.author.name = this.$store.state.userInfo.name;
+              // newAction.author.sex = this.$store.state.userInfo.sex;
+              // newAction.author.type = this.$store.state.userInfo.type;
+              // newAction.author.avatar = this.$store.state.userInfo.avatar;
+
+              // console.log(newAction);
+
+              //新增的动态添加至vuex
+              // this.$store.commit("addMyActions", newAction);
+              // this.$store.commit("addActions", newAction);
+
               //清空vuex
+              this.$store.commit("addActions", "");
               this.$store.commit("addMyActions", "");
             }
           },
@@ -336,7 +348,12 @@ export default {
                 });
                 this.$router.push("/main");
 
+                //修改后的动态替换vuex
+                // this.$store.commit("addMyActions", "");
+                // this.$store.commit("addActions", "");
+
                 //清空vuex
+                this.$store.commit("addActions", "");
                 this.$store.commit("addMyActions", "");
               }
             },

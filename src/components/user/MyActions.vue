@@ -13,16 +13,17 @@
         <div v-if="loadingSuccess">
           <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
           <!--分页-->
-          <div class="page">
+          <div class="page" v-show="myActionsPage.showPage">
             <el-pagination
               background
               layout="prev, pager, next"
               :total="actions.length"
               :page-size="10"
               @current-change="handleCurrentChange"
-              :current-page="currentPage"
+              :current-page="myActionsPage.currentPage"
             ></el-pagination>
           </div>
+          <Tip :tip="tip"></Tip>
         </div>
         <Tip v-else :tip="tip" v-on:refresh="refresh()"></Tip>
       </el-card>
@@ -50,10 +51,15 @@ export default {
         show: false,
         netError: false,
         businessError: false,
-        errorMessage: ""
+        errorMessage: "",
+        emptyAction: false
       },
 
-      currentPage: 1,
+      myActionsPage: {
+        showPage: false,
+        currentPage: 1
+      },
+
       showCard: false,
       actions: [],
       actionPages: []
@@ -62,10 +68,10 @@ export default {
   methods: {
     //分页
     handleCurrentChange(currentPage) {
-      this.currentPage = currentPage;
+      this.myActionsPage.currentPage = currentPage;
       this.actionPages = this.actions.slice(
-        (this.currentPage - 1) * 10,
-        this.currentPage * 10
+        (this.myActionsPage.currentPage - 1) * 10,
+        this.myActionsPage.currentPage * 10
       );
     },
 
@@ -77,8 +83,8 @@ export default {
         this.loadingSuccess = true;
         this.actions = this.$store.state.myActions;
         this.actionPages = this.actions.slice(
-          (this.currentPage - 1) * 10,
-          this.currentPage * 10
+          (this.myActionsPage.currentPage - 1) * 10,
+          this.myActionsPage.currentPage * 10
         );
       } else {
         //从服务器获取数据
@@ -92,11 +98,13 @@ export default {
         this.tip.netError = false;
         this.tip.businessError = false;
         this.tip.errorMessage = "";
+        this.myActionsPage.showPage = false;
 
         let data = {
           userId: this.$store.state.userInfo.userId,
           type: 1
         };
+
         this.$http
           .get(this.globalApi.RetrieveActionListApi, { params: data })
           .then(
@@ -110,13 +118,20 @@ export default {
                 this.tip.businessError = true;
                 this.tip.errorMessage = response.data.message;
               } else {
-                this.actions = response.data.data;
-                this.actionPages = this.actions.slice(
-                  (this.currentPage - 1) * 10,
-                  this.currentPage * 10
-                );
-                //存入vuex;
-                this.$store.commit("addMyActions", response.data.data);
+                if (response.data.data.length == 0) {
+                  this.tip.show = true;
+                  this.tip.emptyAction = true;
+                } else {
+                  this.actions = response.data.data;
+                  this.actionPages = this.actions.slice(
+                    (this.myActionsPage.currentPage - 1) * 10,
+                    this.myActionsPage.currentPage * 10
+                  );
+                  this.myActionsPage.showPage = true;
+
+                  //存入vuex;
+                  this.$store.commit("addMyActions", response.data.data);
+                }
               }
             },
             err => {

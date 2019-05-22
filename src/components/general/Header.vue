@@ -181,6 +181,7 @@
 
 <script>
 import { setCookie, getCookie, delCookie } from "@/utils/cookie.js";
+import EventVue from "@/utils/EventVue.js";
 import store from "@/vuex/store.js";
 export default {
   name: "Header",
@@ -312,11 +313,10 @@ export default {
             duration: 2000
           });
           this.isLogin = false;
-          // delCookie("userId");
-          // delCookie("name");
-          // delCookie("avatar");
+
           delCookie("userInfo");
           this.$store.commit("addUserInfo", "");
+          this.$store.commit("addMyActions", "");
           sessionStorage.removeItem("userInfo");
           this.$router.push("/main");
         });
@@ -376,6 +376,10 @@ export default {
                 this.isLogin = true;
                 this.showLoginDialog = false;
                 this.loginForm.password = "";
+
+                //发送刷新动态页面请求
+                //不知道为什么会发送4次请求
+                // EventVue.$emit("refresh");
               }
             },
             err => {
@@ -454,67 +458,58 @@ export default {
     findPassword(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          this.$Loading.start();
+
           this.resetPassword = true;
 
-          setTimeout(
-            function() {
-              this.resetPassword = false;
-            }.bind(this),
-            2000
-          );
-          // this.$Loading.start();
+          let data = {
+            email: this.findPasswordForm.email
+          };
 
-          // this.showLoginDialog = true;
+          this.$http
+            .post(this.globalApi.UpdatePasswordByEmailApi, data, {
+              emulateJSON: true
+            })
+            .then(
+              response => {
+                this.$Loading.finish();
 
-          // let data = {
-          //   email: this.findPasswordForm.email
-          // };
+                this.resetPassword = false;
 
-          // this.$http
-          //   .put(this.globalApi.UpdatePasswordByEmailApi, data, {
-          //     emulateJSON: true
-          //   })
-          //   .then(
-          //     response => {
-          //       this.$Loading.finish();
+                // console.log(response.data);
 
-          //       this.showLoginDialog = false;
+                if (response.data.status != 200) {
+                  console.log(response.data.message);
+                  this.$message({
+                    message: response.data.message,
+                    type: "error",
+                    center: true,
+                    duration: 2000
+                  });
+                  this.findPasswordForm.email = "";
+                } else {
+                  this.$notify({
+                    title: "重置密码成功",
+                    message: "新密码已发送至邮箱",
+                    type: "success",
+                    duration: 5000
+                  });
+                }
+              },
+              err => {
+                this.$Loading.error();
 
-          //       // console.log(response.data);
+                this.resetPassword = false;
 
-          //       if (response.data.status != 200) {
-          //         console.log(response.data.message);
-          //         this.$message({
-          //           message: response.data.message,
-          //           type: "error",
-          //           center: true,
-          //           duration: 2000
-          //         });
-          //         this.findPasswordForm.email = "";
-          //       } else {
-          //         this.$notify({
-          //           title: "重置密码成功",
-          //           message: "新密码已发送至邮箱",
-          //           type: "success",
-          //           duration: 5000
-          //         });
-          //         this.$router.push({ path: "/login" });
-          //       }
-          //     },
-          //     err => {
-          //       this.$Loading.error();
-
-          //       this.showLoginDialog = false;
-
-          //       this.$message({
-          //         message: "重置密码失败:服务器异常",
-          //         type: "error",
-          //         center: true,
-          //         duration: 2000
-          //       });
-          //       this.findPasswordForm.email = "";
-          //     }
-          //   );
+                this.$message({
+                  message: "重置密码失败:服务器异常",
+                  type: "error",
+                  center: true,
+                  duration: 2000
+                });
+                this.findPasswordForm.email = "";
+              }
+            );
         } else {
           return false;
         }
@@ -528,6 +523,11 @@ export default {
       //通过cookie设置vuex
       this.$store.commit("addUserInfo", JSON.parse(getCookie("userInfo")));
     }
+
+    //接收登录请求
+    EventVue.$on("login", message => {
+      this.showLoginDialog = true;
+    });
   },
   computed: {
     name: function() {

@@ -36,8 +36,8 @@ const globalAPI = {
     //取消关注(DELETE)(finish)
     // DeleteUserCollectionApi: http + '/userCollection',
 
-    //找回密码(PUT)(finish)
-    // UpdatePasswordByEmailApi: http + '/user/password',
+    //找回密码(POST)(finish)
+    UpdatePasswordByEmailApi: http + '/user/password',
 
     //修改密码(PUT)(finish)
     UpdatePasswordApi: http + '/user/password',
@@ -62,11 +62,11 @@ const globalAPI = {
     //获取动态集合(GET)(finish)
     RetrieveActionListApi: http + '/actions',
 
-    //收藏动态(POST)(finish)
-    // CreateActionCollectionApi: http + '/actionCollection',
+    //约拍动态(POST)(finish)
+    CreateActionWatchApi: http + '/actionWatch',
 
-    //取消收藏(DELETE)(finish)
-    // DeleteActionCollectionApi: http + '/actionCollection',
+    //取消约拍动态(DELETE)(finish)
+    DeleteActionWatchApi: http + '/actionWatch',
 
     //上传图片(POST)(finish)
     CreateActionImageApi: http + '/action/image',

@@ -24,7 +24,7 @@
         <div class="clear"></div>
         <el-button type="primary" round id="btn" @click="search()">搜索</el-button>
       </el-card>
-      <el-card class="main" v-loading="loading" element-loading-text="玩命加载中..." shadow="hover">
+      <div class="main" v-loading="loading" element-loading-text="玩命加载中..." shadow="hover">
         <div v-if="loadingSuccess">
           <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
           <!--分页-->
@@ -40,7 +40,7 @@
           </div>
         </div>
         <Tip v-else :tip="tip" v-on:refresh="refresh()"></Tip>
-      </el-card>
+      </div>
       <BackTop :height="100" :bottom="30" :duration="1500">
         <div class="top">返回顶端</div>
       </BackTop>
@@ -195,9 +195,9 @@ export default {
         this.tip.errorMessage = "";
 
         let data = {
-          userId: this.$store.state.userInfo.userId,
-          type: 1
+          type: 2
         };
+
         this.$http
           .get(this.globalApi.RetrieveActionListApi, { params: data })
           .then(
@@ -276,7 +276,7 @@ export default {
   max-width: 950px;
   margin: 0 auto;
   min-height: 500px;
-  border-radius: 20px;
+  /* border-radius: 20px; */
 }
 .top {
   padding: 10px;
