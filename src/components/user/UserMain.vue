@@ -53,6 +53,11 @@
               >
                 <el-option label="摄影师" value="摄影师"></el-option>
                 <el-option label="模特" value="模特"></el-option>
+                <el-option label="修图师" value="修图师"></el-option>
+                <el-option label="化妆师" value="化妆师"></el-option>
+                <el-option label="绘图师" value="绘图师"></el-option>
+                <el-option label="服装供应商" value="服装供应商"></el-option>
+                <el-option label="场地供应商" value="场地供应商"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="生日" prop="birthday">
@@ -66,6 +71,14 @@
                 @blur="validSubmit()"
               ></el-date-picker>
             </el-form-item>
+            <el-alert
+              title="提示"
+              description="邮箱可以用来找回密码，请务必填写准确"
+              center
+              type="warning"
+              effect="light"
+              :closable="false"
+            ></el-alert>
             <el-form-item label="邮箱" prop="email">
               <el-input
                 v-model="userInfoForm.email"
@@ -75,6 +88,13 @@
                 @blur="validSubmit()"
               ></el-input>
             </el-form-item>
+            <el-alert
+              title="提示"
+              description="为了能使您成功约拍，请务必留下有效的联系方式"
+              type="warning"
+              effect="light"
+              :closable="false"
+            ></el-alert>
             <el-form-item label="手机号码" prop="phone">
               <el-input
                 v-model="userInfoForm.phone"
@@ -111,6 +131,7 @@
                 placeholder="请输入简介"
                 clearable
                 @blur="validSubmit()"
+                show-word-limit
               ></el-input>
             </el-form-item>
 
@@ -181,7 +202,7 @@ export default {
           }
         ],
         phone: [
-          { required: true, message: "请输入手机号码", trigger: "change" }
+          // { required: true, message: "请输入手机号码", trigger: "change" }
         ]
       },
 
@@ -228,7 +249,7 @@ export default {
         };
 
         this.$http
-          .get(this.globalApi.RetrieUserInformationApi, { params: data })
+          .get(this.globalApi.RetrieveUserInformationApi, { params: data })
           .then(
             response => {
               // console.log(response.data);

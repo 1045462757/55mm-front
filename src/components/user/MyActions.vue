@@ -1,15 +1,10 @@
 <template>
   <transition name="el-zoom-in-center">
-    <div v-show="showCard">
-      <el-card
-        class="card-myActions"
-        v-loading="loading"
-        element-loading-text="玩命加载中..."
-        shadow="hover"
-      >
-        <div slot="header">
-          <span id="title">我的约拍</span>
-        </div>
+    <el-card class="card-myActions" shadow="never" v-show="showCard">
+      <div slot="header">
+        <span id="title">我的约拍</span>
+      </div>
+      <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
           <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
           <!--分页-->
@@ -26,11 +21,11 @@
           <Tip :tip="tip"></Tip>
         </div>
         <Tip v-else :tip="tip" v-on:refresh="refresh()"></Tip>
-      </el-card>
-      <BackTop :height="100" :bottom="30" :duration="1500">
-        <div class="top">返回顶端</div>
-      </BackTop>
-    </div>
+      </div>
+    </el-card>
+    <BackTop :height="100" :bottom="30" :duration="1500">
+      <div class="top">返回顶端</div>
+    </BackTop>
   </transition>
 </template>
 
@@ -161,27 +156,13 @@ export default {
   min-height: 500px;
 }
 
-.header {
-  width: 95%;
-  margin: 20px auto;
-  max-width: 950px;
-  border-radius: 20px;
-}
-
 .main {
   width: 95%;
   max-width: 950px;
   margin: 0 auto;
   min-height: 500px;
-  border-radius: 20px;
 }
-.top {
-  padding: 10px;
-  background: rgba(0, 153, 229, 0.7);
-  color: #fff;
-  text-align: center;
-  border-radius: 2px;
-}
+
 #title {
   font-size: 24px;
   font-weight: bold;

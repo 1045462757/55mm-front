@@ -74,6 +74,11 @@ export default {
       actionPages: [],
       options: [
         {
+          value: "全部",
+          label: "全部"
+          // children: []
+        },
+        {
           value: "beijing",
           label: "北京"
           // children: []
@@ -122,16 +127,36 @@ export default {
       ],
       type: [
         {
-          value: "all",
+          value: "全部",
           label: "全部"
         },
         {
-          value: "photographer",
+          value: "摄影师",
           label: "摄影师"
         },
         {
-          value: "model",
+          value: "模特",
           label: "模特"
+        },
+        {
+          value: "修图师",
+          label: "修图师"
+        },
+        {
+          value: "化妆师",
+          label: "化妆师"
+        },
+        {
+          value: "绘图师",
+          label: "绘图师"
+        },
+        {
+          value: "服装供应商",
+          label: "服装供应商"
+        },
+        {
+          value: "场地供应商",
+          label: "场地供应商"
         }
       ],
       sex: [
@@ -246,7 +271,6 @@ export default {
   width: 95%;
   margin: 20px auto;
   max-width: 950px;
-  border-radius: 20px;
 }
 #city,
 #type {
@@ -276,7 +300,7 @@ export default {
   max-width: 950px;
   margin: 0 auto;
   min-height: 500px;
-  /* border-radius: 20px; */
+  /* background: #fffefe; */
 }
 .top {
   padding: 10px;

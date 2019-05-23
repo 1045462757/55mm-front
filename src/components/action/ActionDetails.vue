@@ -411,7 +411,7 @@ export default {
           userId: existUserId
         };
 
-        this.$http.get(this.globalApi.RetrieActionApi, { params: data }).then(
+        this.$http.get(this.globalApi.RetrieveActionApi, { params: data }).then(
           response => {
             // console.log(response.data);
             this.loading = false;
@@ -464,7 +464,10 @@ export default {
               userId: this.$store.state.userInfo.userId
             },
             action: {
-              actionId: this.action.actionId
+              actionId: this.action.actionId,
+              author: {
+                userId: this.action.author.userId
+              }
             }
           };
 
@@ -480,12 +483,6 @@ export default {
                   center: true,
                   duration: 2000
                 });
-                // setTimeout(
-                //   function() {
-                //     this.action.isWatched = false;
-                //   }.bind(this),
-                //   2000
-                // );
               } else {
                 //success
                 this.$message({
@@ -506,12 +503,6 @@ export default {
                 center: true,
                 duration: 2000
               });
-              // setTimeout(
-              //   function() {
-              //     this.action.isWatched = false;
-              //   }.bind(this),
-              //   2000
-              // );
             }
           );
         }

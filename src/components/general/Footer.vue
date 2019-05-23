@@ -8,7 +8,9 @@
       <div class="tip">
         <router-link :to="{path:'/about'}">关于本站</router-link>
       </div>
-      <div class="tip">联系我们</div>
+      <div class="tip">
+        <router-link :to="{path:'/about'}">联系我们</router-link>
+      </div>
     </div>
   </div>
 </template>

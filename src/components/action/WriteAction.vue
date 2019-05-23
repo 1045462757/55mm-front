@@ -109,6 +109,8 @@ export default {
     var checkAge = (rule, value, callback) => {
       if (!value) {
         return callback(new Error("价格不能为空"));
+      } else if (value <= 0) {
+        return callback(new Error("请输入正整数"));
       }
       setTimeout(() => {
         if (!Number.isInteger(value)) {

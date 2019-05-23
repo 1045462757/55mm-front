@@ -293,12 +293,7 @@ export default {
         this.$router.push("/user");
       } else if (key == "3-2") {
         this.activeIndex = "3";
-        this.$message({
-          message: "尚在开发",
-          type: "info",
-          center: true,
-          duration: 2000
-        });
+        this.$router.push("/message");
       } else if (key == "3-3") {
         this.activeIndex = "3";
         this.$confirm("确认退出吗", "提示", {
@@ -380,6 +375,14 @@ export default {
                 //发送刷新动态页面请求
                 //不知道为什么会发送4次请求
                 // EventVue.$emit("refresh");
+
+                //获取消息
+                setTimeout(
+                  function() {
+                    this.getMessageForAuthor();
+                  }.bind(this),
+                  2000
+                );
               }
             },
             err => {
@@ -514,6 +517,52 @@ export default {
           return false;
         }
       });
+    },
+
+    /**
+     * 获取约拍消息
+     */
+    getMessageForAuthor() {
+      //状态初始化
+
+      let data = {
+        actionAuthorId: this.$store.state.userInfo.userId
+      };
+
+      this.$http
+        .get(this.globalApi.RetrieveMessageForActionAuthorApi, { params: data })
+        .then(
+          response => {
+            // console.log(response.data);
+
+            if (response.data.status != 200) {
+              console.log(response.data.message);
+              this.$message({
+                message: response.data.message,
+                type: "error",
+                center: true,
+                duration: 2000
+              });
+            } else {
+              if (response.data.data.notReadNum != 0) {
+                this.$notify({
+                  message:
+                    "您有" + response.data.data.notReadNum + "条新的约拍请求",
+                  type: "info",
+                  center: true,
+                  duration: 10000,
+                  offset: 100
+                });
+              }
+            }
+          },
+          err => {
+            this.loading = false;
+            this.loadingSuccess = false;
+            this.tip.show = true;
+            this.tip.netError = true;
+          }
+        );
     }
   },
   mounted() {

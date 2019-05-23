@@ -6,6 +6,15 @@
       </div>
       <div class="block">
         <el-timeline>
+          <el-timeline-item timestamp="2019/5/23" placement="top">
+            <el-card class="card" shadow="hover">
+              <h2>v 1.4</h2>
+              <p>整个项目已完成80%,以下功能待实现</p>
+              <p>1.搜索功能,城市选择框</p>
+              <p>tiga 提交于 2019年5月23日19:49:01</p>
+            </el-card>
+          </el-timeline-item>
+
           <el-timeline-item timestamp="2019/5/22" placement="top">
             <el-card class="card" shadow="hover">
               <h2>v 1.3</h2>

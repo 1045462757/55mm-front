@@ -27,6 +27,13 @@
       <br>
       <el-button type="primary" @click="writeAction()" round icon="el-icon-edit">去写一个?</el-button>
     </div>
+
+    <!--空数据(消息)-->
+    <div v-if="tip.emptyMessage" class="error">
+      <span>咦,没有消息呀</span>
+      <br>
+      <span>^_^</span>
+    </div>
   </div>
 </template>
 

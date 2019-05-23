@@ -12,6 +12,10 @@ import User from '@/components/user/User'
 import ModifyPassword from '@/components/user/ModifyPassword'
 import MyActions from '@/components/user/MyActions'
 
+import Message from '@/components/message/Message'
+import MessageForWatcher from '@/components/message/MessageForWatcher'
+import MessageForAuthor from '@/components/message/MessageForAuthor'
+
 Vue.use(Router)
 
 export default new Router({
@@ -74,6 +78,29 @@ export default new Router({
           requireAuth: true
         },
       }]
+    },
+    {
+      path: '/message',
+      component: Message,
+      meta: {
+        requireAuth: true
+      },
+      children: [
+        {
+          path: 'forWatcher',
+          component: MessageForWatcher,
+          meta: {
+            requireAuth: true
+          },
+        },
+        {
+          path: 'forAuthor',
+          component: MessageForAuthor,
+          meta: {
+            requireAuth: true
+          },
+        }
+      ]
     },
     {
       path: '/test',
