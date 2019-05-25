@@ -17,6 +17,10 @@ import 'quill/dist/quill.bubble.css'
 
 import { getCookie } from "@/utils/cookie.js";
 
+// import 'animate.css'
+// import 'font-awesome/css/font-awesome.min.css'
+
+
 Vue.use(ElementUI);
 Vue.config.productionTip = false
 Vue.prototype.globalApi = globalApi

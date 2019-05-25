@@ -42,7 +42,7 @@
         <Tip v-else :tip="tip" v-on:refresh="refresh()"></Tip>
       </div>
       <BackTop :height="100" :bottom="30" :duration="1500">
-        <div class="top">返回顶端</div>
+        <div class="top el-icon-top"></div>
       </BackTop>
     </div>
   </transition>
@@ -271,6 +271,7 @@ export default {
   width: 95%;
   margin: 20px auto;
   max-width: 950px;
+  border-radius: 10px;
 }
 #city,
 #type {
@@ -300,7 +301,6 @@ export default {
   max-width: 950px;
   margin: 0 auto;
   min-height: 500px;
-  /* background: #fffefe; */
 }
 .top {
   padding: 10px;

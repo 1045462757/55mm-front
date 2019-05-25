@@ -24,7 +24,7 @@
       </div>
     </el-card>
     <BackTop :height="100" :bottom="30" :duration="1500">
-      <div class="top">返回顶端</div>
+      <div class="top el-icon-top"></div>
     </BackTop>
   </transition>
 </template>
@@ -151,7 +151,7 @@ export default {
 .card-myActions {
   width: 95%;
   margin: 20px auto;
-  border-radius: 20px;
+  border-radius: 10px;
   max-width: 1200px;
   min-height: 500px;
 }

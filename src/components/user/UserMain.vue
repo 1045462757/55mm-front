@@ -2,7 +2,7 @@
   <transition name="el-zoom-in-center">
     <el-card class="card-userInfo" v-show="showCard" shadow="hover">
       <div slot="header">
-        <span id="card-title">个人信息</span>
+        <span id="card-title">我的信息</span>
       </div>
 
       <div class="main" v-loading="loading" element-loading-text="玩命加载中...">
@@ -143,7 +143,7 @@
         <Tip v-else :tip="tip" v-on:refresh="getUserInfo()" class="tip"></Tip>
       </div>
       <BackTop :height="100" :bottom="30" :duration="1500">
-        <div class="top">返回顶端</div>
+        <div class="top el-icon-top"></div>
       </BackTop>
     </el-card>
   </transition>
@@ -416,7 +416,7 @@ export default {
 .card-userInfo {
   width: 95%;
   margin: 20px auto;
-  border-radius: 20px;
+  border-radius: 10px;
   max-width: 1200px;
   min-height: 800px;
 }

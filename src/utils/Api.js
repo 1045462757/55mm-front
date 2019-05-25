@@ -1,10 +1,10 @@
 //全局Api接口
 
 //本地测试
-// const http = "http://127.0.0.1:8090";
+// const http = "https://127.0.0.1:8090";
 
 //生产环境
-const http = "http://58.87.73.16:8090"
+const http = "https://hylovecode.cn:8090"
 
 const globalAPI = {
 
@@ -22,7 +22,7 @@ const globalAPI = {
     RetrieveUserInformationApi: http + '/user/information',
 
     //获取其他用户信息(GET)
-    // RetrieveOtherUserInformationApi: http + '/user/information/others',
+    RetrieveOtherUserInformationApi: http + '/user/information/others',
 
     //修改用户信息(PUT)
     UpdateUserInformationApi: http + '/user/information',

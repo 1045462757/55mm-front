@@ -86,7 +86,7 @@ export default {
 .card-message-list {
   width: 95%;
   margin: 20px auto;
-  border-radius: 20px;
+  border-radius: 10px;
   max-width: 950px;
 }
 .header {

@@ -1,8 +1,8 @@
 <template>
   <transition name="el-zoom-in-center">
     <el-card class="card-action-details" v-show="showCard" shadow="hover">
-      <div slot="header">
-        <span id="title">约拍详情</span>
+      <div slot="header" class="clearfix">
+        <span id="title">{{action.title}}</span>
       </div>
 
       <div class="main" v-loading="loading" element-loading-text="玩命加载中...">
@@ -37,9 +37,9 @@
           </div>
 
           <!--文字介绍-->
-          <div class="text">
+          <!-- <div class="text">
             <p>{{action.title}}</p>
-          </div>
+          </div>-->
 
           <!--正文-->
           <div class="image">
@@ -79,7 +79,7 @@
         <Tip v-else :tip="tip" v-on:refresh="getAction()" class="tip"></Tip>
       </div>
       <BackTop :height="100" :bottom="30" :duration="1500">
-        <div class="top">返回顶端</div>
+        <div class="top el-icon-top"></div>
       </BackTop>
     </el-card>
   </transition>
@@ -705,7 +705,9 @@ export default {
             );
         });
       }
-    }
+    },
+
+    like() {}
   },
   computed: {
     permisstion: function() {
@@ -723,7 +725,7 @@ export default {
 .card-action-details {
   width: 95%;
   margin: 20px auto;
-  border-radius: 20px;
+  border-radius: 10px;
   max-width: 1200px;
   min-height: 800px;
 }
@@ -833,5 +835,14 @@ export default {
   color: #fff;
   text-align: center;
   border-radius: 2px;
+}
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both;
 }
 </style>

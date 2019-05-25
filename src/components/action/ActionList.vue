@@ -6,7 +6,7 @@
       <div class="user">
         <img class="avatar" :src="action.author.avatar">
         <div class="user-info">
-          <router-link :to="{path:'/userDetails',query: {userId: action.author.actionId}}">
+          <router-link :to="{path:'/userDetails',query: {userId: action.author.userId}}">
             <span id="name">{{action.author.name}}</span>
           </router-link>
           <div id="sex">
@@ -73,7 +73,7 @@ export default {
 .card-action-list {
   width: 100%;
   margin: 20px auto;
-  border-radius: 20px;
+  border-radius: 10px;
   max-width: 950px;
 }
 

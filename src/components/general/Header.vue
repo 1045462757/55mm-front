@@ -10,7 +10,7 @@
   >
     <!--logo-->
     <el-menu-item class="menu-item">
-      <img width="50px" src="@/assets/logo.png">
+      <!-- <img width="50px" src="@/assets/logo.png"> -->
       <span id="logo-title">55mm</span>
     </el-menu-item>
 
