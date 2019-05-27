@@ -3,6 +3,12 @@
     <el-card class="action-details" v-show="showCard" shadow="hover">
       <div slot="header">
         <span id="card-title">{{userInfoForm.name}}的信息</span>
+        <el-switch
+          v-if="!permisstion"
+          v-model="userInfoForm.isFocus"
+          active-text="关注"
+          @change="focus()"
+        ></el-switch>
       </div>
 
       <div class="main" v-loading="loading" element-loading-text="玩命加载中...">
@@ -13,20 +19,44 @@
           <!--表单-->
           <el-form ref="userInfoForm" :model="userInfoForm" class="form">
             <el-form-item label="昵称" prop="name">
-              <el-input v-model="userInfoForm.name" :disabled="true" style="width: 100%;"></el-input>
+              <el-input
+                v-model="userInfoForm.name"
+                :disabled="true"
+                style="width: 100%;"
+                class="input"
+              ></el-input>
             </el-form-item>
             <el-form-item label="性别" prop="sex">
-              <el-input v-model="userInfoForm.sex" :disabled="true" style="width: 100%;"></el-input>
+              <el-input
+                v-model="userInfoForm.sex"
+                :disabled="true"
+                style="width: 100%;"
+                class="input"
+              ></el-input>
             </el-form-item>
             <el-form-item label="身份" prop="type">
-              <el-input v-model="userInfoForm.type" :disabled="true" style="width: 100%;"></el-input>
+              <el-input
+                v-model="userInfoForm.type"
+                :disabled="true"
+                style="width: 100%;"
+                class="input"
+              ></el-input>
             </el-form-item>
             <el-form-item label="生日" prop="birthday">
-              <el-input v-model="userInfoForm.birthday" :disabled="true" style="width: 100%;"></el-input>
+              <el-input
+                v-model="userInfoForm.birthday"
+                :disabled="true"
+                style="width: 100%;"
+                class="input"
+              ></el-input>
             </el-form-item>
-
             <el-form-item label="个人简介">
-              <el-input v-model="userInfoForm.introduction" :disabled="true" style="width: 100%;"></el-input>
+              <el-input
+                v-model="userInfoForm.introduction"
+                :disabled="true"
+                style="width: 100%;"
+                class="input"
+              ></el-input>
             </el-form-item>
           </el-form>
         </div>
@@ -41,9 +71,11 @@
 
 <script>
 import Tip from "@/components/general/Tip";
+import store from "@/vuex/store.js";
 export default {
   name: "UserDetails",
   components: { Tip },
+  store,
   data() {
     return {
       showCard: false,
@@ -74,7 +106,8 @@ export default {
       this.tip.errorMessage = "";
 
       let data = {
-        userId: this.$route.query.userId
+        userId: this.$route.query.userId,
+        watcherId: this.$store.state.userInfo.userId
       };
 
       this.$http
@@ -91,6 +124,9 @@ export default {
               this.tip.errorMessage = response.data.message;
             } else {
               this.userInfoForm = response.data.data;
+              if (response.data.data.introduction == null) {
+                this.userInfoForm.introduction = "这个人太懒了,什么都没写";
+              }
             }
           },
           err => {
@@ -100,12 +136,146 @@ export default {
             this.tip.netError = true;
           }
         );
+    },
+
+    /**
+     * 关注用户
+     */
+    focus() {
+      if (this.userInfoForm.isFocus == true) {
+        this.$Loading.start();
+        let data = {
+          fansId: this.$store.state.userInfo.userId,
+          focusId: this.userInfoForm.userId
+        };
+
+        this.$http
+          .post(this.globalApi.CreateUserCollectionApi, data, {
+            emulateJSON: true
+          })
+          .then(
+            response => {
+              this.$Loading.finish();
+              // console.log(response.data);
+              if (response.data.status != 200) {
+                this.$message({
+                  message: response.data.message,
+                  type: "error",
+                  center: true,
+                  duration: 2000
+                });
+                setTimeout(
+                  function() {
+                    this.userInfoForm.isFocus = false;
+                  }.bind(this),
+                  2000
+                );
+              } else {
+                this.$message({
+                  message: "关注成功",
+                  type: "success",
+                  center: true,
+                  duration: 2000
+                });
+              }
+            },
+            err => {
+              this.$Loading.error();
+              this.$message({
+                message: "关注用户失败,服务器异常",
+                type: "error",
+                center: true,
+                duration: 2000
+              });
+              setTimeout(
+                function() {
+                  this.userInfoForm.isFocus = false;
+                }.bind(this),
+                2000
+              );
+            }
+          );
+      } else {
+        //取消关注
+        this.$confirm("确认不再关注TA吗", "提示", {
+          confirmButtonText: "真滴",
+          cancelButtonText: "手滑啦",
+          type: "warning"
+        }).then(
+          () => {
+            //加载条开始
+            this.$Loading.start();
+            let data = {
+              fansId: this.$store.state.userInfo.userId,
+              focusId: this.userInfoForm.userId
+            };
+            this.$http
+              .delete(this.globalApi.DeleteUserCollectionApi, {
+                params: data
+              })
+              .then(
+                response => {
+                  this.$Loading.finish();
+                  // console.log(response.data);
+                  if (response.data.status != 200) {
+                    this.$message({
+                      message: response.data.message,
+                      type: "error",
+                      center: true,
+                      duration: 2000
+                    });
+                    setTimeout(
+                      function() {
+                        this.userInfoForm.isFocus = true;
+                      }.bind(this),
+                      2000
+                    );
+                  } else {
+                    this.$message({
+                      message: "取消关注成功",
+                      type: "success",
+                      center: true,
+                      duration: 2000
+                    });
+                  }
+                },
+                err => {
+                  this.$Loading.error();
+                  this.$message({
+                    message: "取消关注用户失败:服务器异常",
+                    type: "error",
+                    center: true,
+                    duration: 2000
+                  });
+                  setTimeout(
+                    function() {
+                      this.userInfoForm.isFocus = true;
+                    }.bind(this),
+                    2000
+                  );
+                }
+              );
+          },
+          () => {
+            this.userInfoForm.isFocus = true;
+          }
+        );
+      }
     }
   },
   mounted() {
     this.showCard = true;
 
     this.getUserInfo();
+  },
+  computed: {
+    permisstion: function() {
+      if (this.userInfoForm.userId == this.$store.state.userInfo.userId) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 };
 </script>
@@ -153,9 +323,13 @@ export default {
   margin: 0 auto;
 }
 
-form {
+.form {
   width: 90%;
   max-width: 320px;
   margin: 20px auto;
+}
+
+.input {
+  font-size: 18px;
 }
 </style>

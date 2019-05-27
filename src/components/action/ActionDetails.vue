@@ -3,6 +3,12 @@
     <el-card class="card-action-details" v-show="showCard" shadow="hover">
       <div slot="header" class="clearfix">
         <span id="title">{{action.title}}</span>
+        <el-switch
+          v-if="!permisstion"
+          v-model="action.isCollected"
+          active-text="收藏"
+          @change="collect()"
+        ></el-switch>
       </div>
 
       <div class="main" v-loading="loading" element-loading-text="玩命加载中...">
@@ -109,7 +115,10 @@ export default {
 
       showCard: false,
       action: {
-        isWatched: false
+        isWatched: false,
+        author: {
+          userId: ""
+        }
       },
       actions: [
         {
@@ -359,17 +368,6 @@ export default {
         }
       ]
     };
-  },
-  mounted() {
-    this.showCard = true;
-
-    this.getAction();
-
-    //接收刷新动态页面请求
-    //不知道为什么会发送4次请求
-    // EventVue.$on("refresh", message => {
-    //   this.getAction();
-    // });
   },
   methods: {
     /**
@@ -707,7 +705,155 @@ export default {
       }
     },
 
-    like() {}
+    /**
+     * 收藏动态
+     */
+    collect() {
+      //权限判断
+      if (this.action.author.userId != this.$store.state.userInfo.userId) {
+        //收藏动态
+        if (this.action.isCollected == true) {
+          this.$Loading.start();
+          let data = {
+            userId: this.$store.state.userInfo.userId,
+            actionId: this.action.actionId
+          };
+
+          this.$http
+            .post(this.globalApi.CreateActionCollectionApi, data, {
+              emulateJSON: true
+            })
+            .then(
+              response => {
+                this.$Loading.finish();
+                // console.log(response.data);
+                if (response.data.status != 200) {
+                  this.$message({
+                    message: response.data.message,
+                    type: "error",
+                    center: true,
+                    duration: 2000
+                  });
+                  setTimeout(
+                    function() {
+                      this.action.isCollect = false;
+                    }.bind(this),
+                    2000
+                  );
+                } else {
+                  //success
+                  this.$message({
+                    message: "收藏成功",
+                    type: "success",
+                    center: true,
+                    duration: 2000
+                  });
+                }
+              },
+              err => {
+                this.$Loading.error();
+                // this.isCollect = false;
+                this.$message({
+                  message: "收藏动态失败,服务器异常",
+                  type: "error",
+                  center: true,
+                  duration: 2000
+                });
+                setTimeout(
+                  function() {
+                    this.action.isCollect = false;
+                  }.bind(this),
+                  2000
+                );
+              }
+            );
+        } else {
+          //取消收藏
+          this.$confirm("确认取消收藏吗", "提示", {
+            confirmButtonText: "真滴",
+            cancelButtonText: "手滑啦",
+            type: "warning"
+          }).then(
+            () => {
+              //加载条开始
+              this.$Loading.start();
+              let data = {
+                userId: this.$store.state.userInfo.userId,
+                actionId: this.action.actionId
+              };
+              this.$http
+                .delete(this.globalApi.DeleteActionCollectionApi, {
+                  params: data
+                })
+                .then(
+                  response => {
+                    this.$Loading.finish();
+                    // console.log(response.data);
+                    if (response.data.status != 200) {
+                      this.$message({
+                        message: response.data.message,
+                        type: "error",
+                        center: true,
+                        duration: 2000
+                      });
+                      setTimeout(
+                        function() {
+                          this.action.isCollect = true;
+                        }.bind(this),
+                        2000
+                      );
+                    } else {
+                      //success
+                      this.$message({
+                        message: "取消收藏成功",
+                        type: "success",
+                        center: true,
+                        duration: 2000
+                      });
+                    }
+                  },
+                  err => {
+                    this.$Loading.error();
+                    this.$message({
+                      message: "取消收藏动态失败:服务器异常",
+                      type: "error",
+                      center: true,
+                      duration: 1000
+                    });
+                    setTimeout(
+                      function() {
+                        this.action.isCollect = true;
+                      }.bind(this),
+                      2000
+                    );
+                  }
+                );
+            },
+            () => {
+              this.action.isCollect = true;
+            }
+          );
+        }
+      } else {
+        this.$message({
+          message: "没有权限",
+          type: "warning",
+          center: true,
+          duration: 2000
+        });
+      }
+    }
+  },
+  mounted() {
+    this.showCard = true;
+
+    this.getAction();
+
+    //接收刷新动态页面请求
+    //不知道为什么会发送4次请求
+    // EventVue.$on("refresh", message => {
+    //   this.getAction();
+    // });
   },
   computed: {
     permisstion: function() {

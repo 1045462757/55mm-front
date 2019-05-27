@@ -1,10 +1,10 @@
 //全局Api接口
 
 //本地测试
-// const http = "https://127.0.0.1:8090";
+const http = "https://127.0.0.1:8090";
 
 //生产环境
-const http = "https://hylovecode.cn:8090"
+// const http = "https://hylovecode.cn:8090"
 
 const globalAPI = {
 
@@ -31,10 +31,10 @@ const globalAPI = {
     UpdateUserApi: http + '/user/avatar',
 
     //关注用户(POST)
-    // CreateUserCollectionApi: http + '/userCollection',
+    CreateUserCollectionApi: http + '/userCollection',
 
     //取消关注(DELETE)
-    // DeleteUserCollectionApi: http + '/userCollection',
+    DeleteUserCollectionApi: http + '/userCollection',
 
     //找回密码(POST)
     UpdatePasswordByEmailApi: http + '/user/password',
@@ -70,6 +70,12 @@ const globalAPI = {
 
     //上传图片(POST)
     CreateActionImageApi: http + '/action/image',
+
+    //收藏动态(POST)
+    CreateActionCollectionApi: http + '/actionCollection',
+
+    //取消收藏动态(DELETE)
+    DeleteActionCollectionApi: http + '/actionCollection',
 
 
     /**

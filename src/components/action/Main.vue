@@ -1,7 +1,8 @@
 <template>
   <transition name="el-zoom-in-center">
     <div v-show="show">
-      <el-card class="header" shadow="hover">
+      <!--搜索-->
+      <el-card class="search" shadow="hover">
         <div id="city">
           <span>地区:</span>
           <el-cascader placeholder="选择城市" :options="options" filterable change-on-select></el-cascader>
@@ -79,23 +80,173 @@ export default {
           // children: []
         },
         {
-          value: "beijing",
+          value: "北京",
           label: "北京"
           // children: []
         },
         {
-          value: "tianjing",
+          value: "天津",
           label: "天津"
           // children: []
         },
         {
-          value: "shanghai",
+          value: "上海",
           label: "上海"
           // children: []
         },
         {
-          value: "chongqing",
+          value: "重庆",
           label: "重庆"
+          // children: []
+        },
+        {
+          value: "河北",
+          label: "河北"
+          // children: []
+        },
+        {
+          value: "山西",
+          label: "山西"
+          // children: []
+        },
+        {
+          value: "辽宁",
+          label: "辽宁"
+          // children: []
+        },
+        {
+          value: "吉林",
+          label: "吉林"
+          // children: []
+        },
+        {
+          value: "黑龙江",
+          label: "黑龙江"
+          // children: []
+        },
+        {
+          value: "江苏",
+          label: "江苏"
+          // children: []
+        },
+        {
+          value: "浙江",
+          label: "浙江"
+          // children: []
+        },
+        {
+          value: "安徽",
+          label: "安徽"
+          // children: []
+        },
+        {
+          value: "福建",
+          label: "福建"
+          // children: []
+        },
+        {
+          value: "江西",
+          label: "江西"
+          // children: []
+        },
+        {
+          value: "山东",
+          label: "山东"
+          // children: []
+        },
+        {
+          value: "河南",
+          label: "河南"
+          // children: []
+        },
+        {
+          value: "湖北",
+          label: "湖北"
+          // children: []
+        },
+        {
+          value: "湖南",
+          label: "湖南"
+          // children: []
+        },
+        {
+          value: "广东",
+          label: "广东"
+          // children: []
+        },
+        {
+          value: "海南",
+          label: "海南"
+          // children: []
+        },
+        {
+          value: "四川",
+          label: "四川"
+          // children: []
+        },
+        {
+          value: "贵州",
+          label: "贵州"
+          // children: []
+        },
+        {
+          value: "云南",
+          label: "云南"
+          // children: []
+        },
+        {
+          value: "陕西",
+          label: "陕西"
+          // children: []
+        },
+        {
+          value: "甘肃",
+          label: "甘肃"
+          // children: []
+        },
+        {
+          value: "青海",
+          label: "青海"
+          // children: []
+        },
+        {
+          value: "台湾",
+          label: "台湾"
+          // children: []
+        },
+        {
+          value: "内蒙古",
+          label: "内蒙古"
+          // children: []
+        },
+        {
+          value: "广西",
+          label: "广西"
+          // children: []
+        },
+        {
+          value: "西藏",
+          label: "西藏"
+          // children: []
+        },
+        {
+          value: "宁夏",
+          label: "宁夏"
+          // children: []
+        },
+        {
+          value: "新疆",
+          label: "新疆"
+          // children: []
+        },
+        {
+          value: "香港",
+          label: "香港"
+          // children: []
+        },
+        {
+          value: "澳门",
+          label: "澳门"
           // children: []
         }
       ],
@@ -267,7 +418,7 @@ export default {
 #menu {
   margin-top: 20px;
 }
-.header {
+.search {
   width: 95%;
   margin: 20px auto;
   max-width: 950px;
