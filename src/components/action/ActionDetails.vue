@@ -24,7 +24,7 @@
                 </router-link>
                 <div id="sex">
                   <img class="sex-img" src="@/assets/male.png" v-if="action.author.sex=='男'">
-                  <img class="sex-img" src="@/assets/female.png" v-else>
+                  <img class="sex-img" src="@/assets/female.png" v-else-if="action.author.sex=='女'">
                 </div>
                 <div id="type">{{action.author.type}}</div>
               </div>
@@ -42,22 +42,9 @@
             </span>
           </div>
 
-          <!--文字介绍-->
-          <!-- <div class="text">
-            <p>{{action.title}}</p>
-          </div>-->
-
           <!--正文-->
-          <div class="image">
-            <!-- <div v-html="action.content"></div> -->
-            <el-image
-              class="img"
-              fit="fill"
-              v-for="(image,index) in action.images"
-              :key="index"
-              :src="image"
-            ></el-image>
-          </div>
+          <div v-html="action.content" class="content"></div>
+
           <div v-if="!permisstion">
             <el-button
               type="primary"
@@ -950,9 +937,6 @@ export default {
   color: #000000;
   font-weight: bold;
 }
-.image {
-  margin-top: 20px;
-}
 .img {
   margin-left: 5px;
   margin: 10px auto;
@@ -990,5 +974,9 @@ export default {
 }
 .clearfix:after {
   clear: both;
+}
+
+.content >>> img {
+  max-width: 100%;
 }
 </style>

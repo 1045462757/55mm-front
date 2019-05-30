@@ -34,6 +34,20 @@
       <br>
       <span>^_^</span>
     </div>
+
+    <!--空数据(关注)-->
+    <div v-if="tip.emptyFocus" class="error">
+      <span>咦,没有关注呀</span>
+      <br>
+      <span>^_^</span>
+    </div>
+
+    <!--空数据(粉丝)-->
+    <div v-if="tip.emptyFans" class="error">
+      <span>咦,没有粉丝呀</span>
+      <br>
+      <span>^_^</span>
+    </div>
   </div>
 </template>
 

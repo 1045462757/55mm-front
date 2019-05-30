@@ -11,7 +11,7 @@
           </router-link>
           <div id="sex">
             <img class="sex-img" src="@/assets/male.png" v-if="action.author.sex=='男'">
-            <img class="sex-img" src="@/assets/female.png" v-else>
+            <img class="sex-img" src="@/assets/female.png" v-else-if="action.author.sex=='女'">
           </div>
           <div id="type">{{action.author.type}}</div>
         </div>

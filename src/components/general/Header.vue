@@ -23,11 +23,6 @@
       <template slot="title">
         <span v-if="isLogin" class="submenu-title">
           <img :src="avatar" class="avatar">
-          <!-- <el-image :src="avatar" class="avatar">
-            <div slot="error">
-              <i class="el-icon-picture-outline"></i>
-            </div>
-          </el-image>-->
           {{name}}
         </span>
         <span class="submenu-title el-icon-user-solid" v-else>游客</span>
@@ -636,7 +631,3 @@ export default {
   border-radius: 50%;
 }
 </style>
-
-
-
-

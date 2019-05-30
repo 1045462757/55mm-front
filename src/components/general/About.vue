@@ -6,45 +6,15 @@
       </div>
       <div class="block">
         <el-timeline>
-          <el-timeline-item timestamp="2019/5/23" placement="top">
+          <el-timeline-item timestamp="2019/5/30" placement="top">
             <el-card class="card" shadow="hover">
-              <h2>v 1.4</h2>
-              <p>整个项目已完成80%,以下功能待实现</p>
-              <p>1.搜索功能,城市选择框</p>
-              <p>tiga 提交于 2019年5月23日19:49:01</p>
-            </el-card>
-          </el-timeline-item>
-
-          <el-timeline-item timestamp="2019/5/22" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>v 1.3</h2>
-              <p>完善找回密码</p>
-              <p>tiga 提交于 2019年5月22日09:11:47</p>
-            </el-card>
-          </el-timeline-item>
-
-          <el-timeline-item timestamp="2019/5/19" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>v 1.2</h2>
-              <p>用户,动态相关功能完善</p>
-              <p>tiga 提交于 2019年5月19日23:08:19</p>
-            </el-card>
-          </el-timeline-item>
-
-          <el-timeline-item timestamp="2019/5/17" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>v 1.1</h2>
-              <p>解决数据存储问题</p>
-              <p>tiga 提交于 2019年5月17日21:14:23</p>
-            </el-card>
-          </el-timeline-item>
-
-          <el-timeline-item timestamp="2019/5/9" placement="top">
-            <el-card class="card" shadow="hover">
-              <h2>v 1.0</h2>
-              <p>提交github</p>
-              <a href="https://github.com/1045462757/55mm" target="_Blank">55mm</a>
-              <p>tiga 提交于 2019年5月9日15:01:18</p>
+              <h1>V1.0</h1>
+              <span id="link">
+                Github->
+                <a href="https://github.com/1045462757/55mm" target="_Blank">55mm</a>
+              </span>
+              <br>
+              <span id="time">2019年5月30日15:19:23</span>
             </el-card>
           </el-timeline-item>
         </el-timeline>
@@ -95,7 +65,6 @@ export default {
 }
 p {
   font-size: 18px;
-  /* font-size: 1rem; */
 }
 a:hover {
   color: brown;
@@ -105,5 +74,13 @@ a:hover {
   font-size: 24px;
   font-weight: bold;
   letter-spacing: 5px;
+}
+
+#link {
+  font-size: 20px;
+}
+
+#time {
+  font-size: 14px;
 }
 </style>

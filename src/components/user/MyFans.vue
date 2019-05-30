@@ -2,20 +2,20 @@
   <transition name="el-zoom-in-center">
     <el-card class="card-myActions" shadow="never" v-show="showCard">
       <div slot="header">
-        <span id="title">我的约拍</span>
+        <span id="title">我的粉丝</span>
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
-          <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
+          <UserList :user="user" v-for="(user,index) in fansPages" :key="index"></UserList>
           <!--分页-->
-          <div class="page" v-show="myActionsPage.showPage">
+          <div class="page" v-show="fansPage.showPage">
             <el-pagination
               background
               layout="prev, pager, next"
-              :total="actions.length"
+              :total="fans.length"
               :page-size="10"
               @current-change="handleCurrentChange"
-              :current-page="myActionsPage.currentPage"
+              :current-page="fansPage.currentPage"
             ></el-pagination>
           </div>
           <Tip :tip="tip"></Tip>
@@ -27,13 +27,13 @@
 </template>
 
 <script>
-import ActionList from "@/components/action/ActionList";
+import UserList from "@/components/user/UserList";
 import Tip from "@/components/general/Tip";
 import store from "@/vuex/store.js";
 export default {
-  name: "MyActions",
+  name: "MyFans",
   store,
-  components: { ActionList, Tip },
+  components: { UserList, Tip },
   data() {
     return {
       loading: true,
@@ -44,39 +44,39 @@ export default {
         netError: false,
         businessError: false,
         errorMessage: "",
-        emptyAction: false
+        emptyFans: false
       },
 
-      myActionsPage: {
+      fansPage: {
         showPage: false,
         currentPage: 1
       },
 
       showCard: false,
-      actions: [],
-      actionPages: []
+      fans: [],
+      fansPages: []
     };
   },
   methods: {
     //分页
     handleCurrentChange(currentPage) {
-      this.myActionsPage.currentPage = currentPage;
-      this.actionPages = this.actions.slice(
-        (this.myActionsPage.currentPage - 1) * 10,
-        this.myActionsPage.currentPage * 10
+      this.fansPage.currentPage = currentPage;
+      this.fansPages = this.fans.slice(
+        (this.fansPage.currentPage - 1) * 10,
+        this.fansPage.currentPage * 10
       );
     },
 
     //获取动态
     refresh() {
       //vuex存在数据
-      if (this.$store.state.myActions.length != 0) {
+      if (this.$store.state.fans.length != 0) {
         this.loading = false;
         this.loadingSuccess = true;
-        this.actions = this.$store.state.myActions;
-        this.actionPages = this.actions.slice(
-          (this.myActionsPage.currentPage - 1) * 10,
-          this.myActionsPage.currentPage * 10
+        this.fans = this.$store.state.fans;
+        this.fansPages = this.fans.slice(
+          (this.fansPage.currentPage - 1) * 10,
+          this.fansPage.currentPage * 10
         );
       } else {
         //从服务器获取数据
@@ -84,21 +84,20 @@ export default {
         //状态初始化
         this.loading = true;
         this.loadingSuccess = false;
-        this.actions = [];
-        this.actionPages = [];
+        this.fans = [];
+        this.fansPages = [];
         this.tip.show = false;
         this.tip.netError = false;
         this.tip.businessError = false;
         this.tip.errorMessage = "";
-        this.myActionsPage.showPage = false;
+        this.fansPage.showPage = false;
 
         let data = {
           userId: this.$store.state.userInfo.userId,
-          type: 1
         };
 
         this.$http
-          .get(this.globalApi.RetrieveActionListApi, { params: data })
+          .get(this.globalApi.RetrieveFansApi, { params: data })
           .then(
             response => {
               // console.log(response.data);
@@ -112,17 +111,17 @@ export default {
               } else {
                 if (response.data.data.length == 0) {
                   this.tip.show = true;
-                  this.tip.emptyAction = true;
+                  this.tip.emptyFans = true;
                 } else {
-                  this.actions = response.data.data;
-                  this.actionPages = this.actions.slice(
-                    (this.myActionsPage.currentPage - 1) * 10,
-                    this.myActionsPage.currentPage * 10
+                  this.fans = response.data.data;
+                  this.fansPages = this.fans.slice(
+                    (this.fansPage.currentPage - 1) * 10,
+                    this.fansPage.currentPage * 10
                   );
-                  this.myActionsPage.showPage = true;
+                  this.fansPage.showPage = true;
 
                   //存入vuex;
-                  this.$store.commit("addMyActions", response.data.data);
+                  this.$store.commit("addFans", response.data.data);
                 }
               }
             },

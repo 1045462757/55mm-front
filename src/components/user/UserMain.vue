@@ -90,7 +90,7 @@
             </el-form-item>
             <el-alert
               title="提示"
-              description="为了能使您成功约拍，请务必留下有效的联系方式"
+              description="当您有新的约拍请求时会收到约拍通知，请务必填写有效的手机号"
               type="warning"
               effect="light"
               :closable="false"
@@ -98,7 +98,7 @@
             <el-form-item label="手机号码" prop="phone">
               <el-input
                 v-model="userInfoForm.phone"
-                maxlength="15"
+                maxlength="11"
                 placeholder="请输入手机号码"
                 clearable
                 @blur="validSubmit()"
@@ -142,9 +142,6 @@
         </div>
         <Tip v-else :tip="tip" v-on:refresh="getUserInfo()" class="tip"></Tip>
       </div>
-      <BackTop :height="100" :bottom="30" :duration="1500">
-        <div class="top el-icon-top"></div>
-      </BackTop>
     </el-card>
   </transition>
 </template>
@@ -443,11 +440,5 @@ form {
   margin: 20px auto;
 }
 
-.top {
-  padding: 10px;
-  background: rgba(0, 153, 229, 0.7);
-  color: #fff;
-  text-align: center;
-  border-radius: 2px;
-}
+
 </style>

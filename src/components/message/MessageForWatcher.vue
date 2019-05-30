@@ -2,7 +2,7 @@
   <transition name="el-zoom-in-center">
     <el-card class="card-message" shadow="never" v-show="showCard">
       <div slot="header">
-        <span id="card-title">我发起的请求</span>
+        <span id="card-title">发起的请求</span>
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">

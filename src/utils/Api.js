@@ -1,10 +1,10 @@
 //全局Api接口
 
 //本地测试
-const http = "https://127.0.0.1:8090";
+// const http = "https://127.0.0.1:8090";
 
 //生产环境
-// const http = "https://hylovecode.cn:8090"
+const http = "https://hylovecode.cn:8090"
 
 const globalAPI = {
 
@@ -41,6 +41,12 @@ const globalAPI = {
 
     //修改密码(PUT)
     UpdatePasswordApi: http + '/user/password',
+
+    //获取关注(GET)
+    RetrieveFocusApi: http + '/user/focus',
+
+    //获取粉丝(GET)
+    RetrieveFansApi: http + '/user/fans',
 
 
     /**

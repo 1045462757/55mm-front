@@ -8,6 +8,9 @@
       <div class="user-right">
         <router-view></router-view>
       </div>
+      <BackTop :height="100" :bottom="30" :duration="1500">
+        <div class="top el-icon-top"></div>
+      </BackTop>
     </el-card>
   </transition>
 </template>
@@ -37,12 +40,20 @@ export default {
   min-height: 800px;
 }
 .user-left {
-  width: 20%;
+  width: 10%;
   margin-top: 20px;
   float: left;
 }
 .user-right {
-  width: 80%;
+  width: 90%;
   float: right;
+}
+
+.top {
+  padding: 10px;
+  background: rgba(0, 153, 229, 0.7);
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
 }
 </style>

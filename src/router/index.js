@@ -6,7 +6,6 @@ import WriteAction from '@/components/action/WriteAction'
 import About from '@/components/general/About'
 import UserDetails from '@/components/user/UserDetails'
 import UserMain from '@/components/user/UserMain'
-import test from '@/components/test/test'
 
 import User from '@/components/user/User'
 import ModifyPassword from '@/components/user/ModifyPassword'
@@ -15,6 +14,10 @@ import MyActions from '@/components/user/MyActions'
 import Message from '@/components/message/Message'
 import MessageForWatcher from '@/components/message/MessageForWatcher'
 import MessageForAuthor from '@/components/message/MessageForAuthor'
+
+import MyCollection from "@/components/user/MyCollection"
+import MyFocus from "@/components/user/MyFocus"
+import MyFans from "@/components/user/MyFans"
 
 Vue.use(Router)
 
@@ -77,6 +80,24 @@ export default new Router({
         meta: {
           requireAuth: true
         },
+      }, {
+        path: 'collections',
+        component: MyCollection,
+        meta: {
+          requireAuth: true
+        },
+      }, {
+        path: 'focus',
+        component: MyFocus,
+        meta: {
+          requireAuth: true
+        },
+      }, {
+        path: 'fans',
+        component: MyFans,
+        meta: {
+          requireAuth: true
+        },
       }]
     },
     {
@@ -101,11 +122,6 @@ export default new Router({
           },
         }
       ]
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: test,
-    },
+    }
   ]
 })

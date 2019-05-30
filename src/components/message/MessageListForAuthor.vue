@@ -11,7 +11,7 @@
           </router-link>
           <div id="sex">
             <img class="sex-img" src="@/assets/male.png" v-if="message.watcher.sex=='男'">
-            <img class="sex-img" src="@/assets/female.png" v-else>
+            <img class="sex-img" src="@/assets/female.png" v-else-if="message.watcher.sex=='女'">
           </div>
           <div id="type">{{message.watcher.type}}</div>
         </div>

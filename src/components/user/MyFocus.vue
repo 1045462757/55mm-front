@@ -2,20 +2,20 @@
   <transition name="el-zoom-in-center">
     <el-card class="card-myActions" shadow="never" v-show="showCard">
       <div slot="header">
-        <span id="title">我的约拍</span>
+        <span id="title">我的关注</span>
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
-          <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
+          <UserList :user="user" v-for="(user,index) in focusPages" :key="index"></UserList>
           <!--分页-->
-          <div class="page" v-show="myActionsPage.showPage">
+          <div class="page" v-show="focusPage.showPage">
             <el-pagination
               background
               layout="prev, pager, next"
-              :total="actions.length"
+              :total="focus.length"
               :page-size="10"
               @current-change="handleCurrentChange"
-              :current-page="myActionsPage.currentPage"
+              :current-page="focusPage.currentPage"
             ></el-pagination>
           </div>
           <Tip :tip="tip"></Tip>
@@ -27,13 +27,13 @@
 </template>
 
 <script>
-import ActionList from "@/components/action/ActionList";
+import UserList from "@/components/user/UserList";
 import Tip from "@/components/general/Tip";
 import store from "@/vuex/store.js";
 export default {
-  name: "MyActions",
+  name: "Myfocus",
   store,
-  components: { ActionList, Tip },
+  components: { UserList, Tip },
   data() {
     return {
       loading: true,
@@ -44,39 +44,39 @@ export default {
         netError: false,
         businessError: false,
         errorMessage: "",
-        emptyAction: false
+        emptyfocus: false
       },
 
-      myActionsPage: {
+      focusPage: {
         showPage: false,
         currentPage: 1
       },
 
       showCard: false,
-      actions: [],
-      actionPages: []
+      focus: [],
+      focusPages: []
     };
   },
   methods: {
     //分页
     handleCurrentChange(currentPage) {
-      this.myActionsPage.currentPage = currentPage;
-      this.actionPages = this.actions.slice(
-        (this.myActionsPage.currentPage - 1) * 10,
-        this.myActionsPage.currentPage * 10
+      this.focusPage.currentPage = currentPage;
+      this.focusPages = this.focus.slice(
+        (this.focusPage.currentPage - 1) * 10,
+        this.focusPage.currentPage * 10
       );
     },
 
     //获取动态
     refresh() {
       //vuex存在数据
-      if (this.$store.state.myActions.length != 0) {
+      if (this.$store.state.focus.length != 0) {
         this.loading = false;
         this.loadingSuccess = true;
-        this.actions = this.$store.state.myActions;
-        this.actionPages = this.actions.slice(
-          (this.myActionsPage.currentPage - 1) * 10,
-          this.myActionsPage.currentPage * 10
+        this.focus = this.$store.state.focus;
+        this.focusPages = this.focus.slice(
+          (this.focusPage.currentPage - 1) * 10,
+          this.focusPage.currentPage * 10
         );
       } else {
         //从服务器获取数据
@@ -84,21 +84,20 @@ export default {
         //状态初始化
         this.loading = true;
         this.loadingSuccess = false;
-        this.actions = [];
-        this.actionPages = [];
+        this.focus = [];
+        this.focusPages = [];
         this.tip.show = false;
         this.tip.netError = false;
         this.tip.businessError = false;
         this.tip.errorMessage = "";
-        this.myActionsPage.showPage = false;
+        this.focusPage.showPage = false;
 
         let data = {
           userId: this.$store.state.userInfo.userId,
-          type: 1
         };
 
         this.$http
-          .get(this.globalApi.RetrieveActionListApi, { params: data })
+          .get(this.globalApi.RetrieveFocusApi, { params: data })
           .then(
             response => {
               // console.log(response.data);
@@ -112,17 +111,17 @@ export default {
               } else {
                 if (response.data.data.length == 0) {
                   this.tip.show = true;
-                  this.tip.emptyAction = true;
+                  this.tip.emptyFocus = true;
                 } else {
-                  this.actions = response.data.data;
-                  this.actionPages = this.actions.slice(
-                    (this.myActionsPage.currentPage - 1) * 10,
-                    this.myActionsPage.currentPage * 10
+                  this.focus = response.data.data;
+                  this.focusPages = this.focus.slice(
+                    (this.focusPage.currentPage - 1) * 10,
+                    this.focusPage.currentPage * 10
                   );
-                  this.myActionsPage.showPage = true;
+                  this.focusPage.showPage = true;
 
                   //存入vuex;
-                  this.$store.commit("addMyActions", response.data.data);
+                  this.$store.commit("addFocus", response.data.data);
                 }
               }
             },

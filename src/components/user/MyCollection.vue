@@ -2,7 +2,7 @@
   <transition name="el-zoom-in-center">
     <el-card class="card-myActions" shadow="never" v-show="showCard">
       <div slot="header">
-        <span id="title">我的约拍</span>
+        <span id="title">我的收藏</span>
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
@@ -70,10 +70,10 @@ export default {
     //获取动态
     refresh() {
       //vuex存在数据
-      if (this.$store.state.myActions.length != 0) {
+      if (this.$store.state.collections.length != 0) {
         this.loading = false;
         this.loadingSuccess = true;
-        this.actions = this.$store.state.myActions;
+        this.actions = this.$store.state.collections;
         this.actionPages = this.actions.slice(
           (this.myActionsPage.currentPage - 1) * 10,
           this.myActionsPage.currentPage * 10
@@ -94,7 +94,7 @@ export default {
 
         let data = {
           userId: this.$store.state.userInfo.userId,
-          type: 1
+          type: 3
         };
 
         this.$http
@@ -122,7 +122,7 @@ export default {
                   this.myActionsPage.showPage = true;
 
                   //存入vuex;
-                  this.$store.commit("addMyActions", response.data.data);
+                  this.$store.commit("addCollections", response.data.data);
                 }
               }
             },
