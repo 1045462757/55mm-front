@@ -28,14 +28,14 @@
         <span class="submenu-title el-icon-user-solid" v-else>游客</span>
       </template>
 
-      <!--未登录-->
+      <!--已登录-->
       <div v-if="isLogin">
         <el-menu-item index="3-1" class="el-icon-s-custom sbumenu-menu-item">个人中心</el-menu-item>
         <el-menu-item index="3-2" class="el-icon-message-solid sbumenu-menu-item">我的消息</el-menu-item>
         <el-menu-item index="3-3" class="el-icon-circle-close sbumenu-menu-item">退出系统</el-menu-item>
       </div>
 
-      <!--已登录-->
+      <!--未登录-->
       <div v-else>
         <el-menu-item index="3-4" class="el-icon-star-on sbumenu-menu-item">登录|注册</el-menu-item>
       </div>
@@ -332,10 +332,10 @@ export default {
               this.$Loading.finish();
 
               // console.log(response.data);
-              if (response.data.status != 200) {
-                console.log(response.data.message);
+              if (response.data.errorCode != null) {
+                console.log(response.data);
                 this.$message({
-                  message: response.data.message,
+                  message: response.data.errorMessage,
                   type: "error",
                   center: true,
                   duration: 2000
@@ -347,14 +347,10 @@ export default {
                 // setCookie("name", response.data.data.name, 1000 * 60);
                 // setCookie("avatar", response.data.data.avatar, 1000 * 60);
                 // setCookie("userId", response.data.data.userId, 1000 * 60);
-                setCookie(
-                  "userInfo",
-                  JSON.stringify(response.data.data),
-                  1000 * 60
-                );
+                setCookie("userInfo", JSON.stringify(response.data), 1000 * 60);
 
                 //用户信息存入vuex
-                this.$store.commit("addUserInfo", response.data.data);
+                this.$store.commit("addUserInfo", response.data);
 
                 this.$message({
                   message: "登录成功",
@@ -415,10 +411,10 @@ export default {
 
               this.$Loading.finish();
 
-              if (response.data.status != 200) {
-                console.log(response.data.message);
+              if (response.data.errorCode != null) {
+                console.log(response.data);
                 this.$message({
-                  message: response.data.message,
+                  message: response.data.errorMessage,
                   type: "error",
                   center: true,
                   duration: 2000
@@ -476,10 +472,10 @@ export default {
 
                 // console.log(response.data);
 
-                if (response.data.status != 200) {
-                  console.log(response.data.message);
+                if (response.data.errorCode != null) {
+                  console.log(response.data);
                   this.$message({
-                    message: response.data.message,
+                    message: response.data.errorMessage,
                     type: "error",
                     center: true,
                     duration: 2000
@@ -521,7 +517,8 @@ export default {
       //状态初始化
 
       let data = {
-        actionAuthorId: this.$store.state.userInfo.userId
+        actionAuthorId: this.$store.state.userInfo.userId,
+        pageIndex: 1
       };
 
       this.$http
@@ -530,19 +527,18 @@ export default {
           response => {
             // console.log(response.data);
 
-            if (response.data.status != 200) {
-              console.log(response.data.message);
+            if (response.data.errorCode != null) {
+              console.log(response.data);
               this.$message({
-                message: response.data.message,
+                message: response.data.errorMessage,
                 type: "error",
                 center: true,
                 duration: 2000
               });
             } else {
-              if (response.data.data.notReadNum != 0) {
+              if (response.data.notReadNum != 0) {
                 this.$notify({
-                  message:
-                    "您有" + response.data.data.notReadNum + "条新的约拍请求",
+                  message: "您有" + response.data.notReadNum + "条新的约拍请求",
                   type: "info",
                   center: true,
                   duration: 10000,

@@ -318,10 +318,10 @@ export default {
         response => {
           this.$Loading.finish();
           // console.log(response.data);
-          if (response.data.status != 200) {
+          if (response.data.errorCode != null) {
             //failed
             this.$message({
-              message: response.data.message,
+              message: response.data.errorMessage,
               type: "error",
               center: true,
               duration: 2000
@@ -439,6 +439,4 @@ form {
   max-width: 320px;
   margin: 20px auto;
 }
-
-
 </style>

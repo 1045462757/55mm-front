@@ -19,6 +19,8 @@ import MyCollection from "@/components/user/MyCollection"
 import MyFocus from "@/components/user/MyFocus"
 import MyFans from "@/components/user/MyFans"
 
+import Admin from "@/components/admin/Admin"
+
 Vue.use(Router)
 
 export default new Router({
@@ -122,6 +124,13 @@ export default new Router({
           },
         }
       ]
+    },
+    {
+      path: "/admin",
+      component: Admin,
+      meta: {
+        requireAuth: true
+      }
     }
   ]
 })

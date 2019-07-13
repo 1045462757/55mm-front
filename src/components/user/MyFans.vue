@@ -6,14 +6,14 @@
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
-          <UserList :user="user" v-for="(user,index) in fansPages" :key="index"></UserList>
+          <UserList :user="user" v-for="(user,index) in fans" :key="index"></UserList>
           <!--分页-->
           <div class="page" v-show="fansPage.showPage">
             <el-pagination
               background
               layout="prev, pager, next"
-              :total="fans.length"
               :page-size="10"
+              :page-count="fansPage.totalPages"
               @current-change="handleCurrentChange"
               :current-page="fansPage.currentPage"
             ></el-pagination>
@@ -49,12 +49,12 @@ export default {
 
       fansPage: {
         showPage: false,
-        currentPage: 1
+        currentPage: 1,
+        totalPages: ""
       },
 
       showCard: false,
-      fans: [],
-      fansPages: []
+      fans: []
     };
   },
   methods: {
@@ -71,13 +71,13 @@ export default {
     refresh() {
       //vuex存在数据
       if (this.$store.state.fans.length != 0) {
-        this.loading = false;
-        this.loadingSuccess = true;
-        this.fans = this.$store.state.fans;
-        this.fansPages = this.fans.slice(
-          (this.fansPage.currentPage - 1) * 10,
-          this.fansPage.currentPage * 10
-        );
+        // this.loading = false;
+        // this.loadingSuccess = true;
+        // this.fans = this.$store.state.fans;
+        // this.fansPages = this.fans.slice(
+        //   (this.fansPage.currentPage - 1) * 10,
+        //   this.fansPage.currentPage * 10
+        // );
       } else {
         //从服务器获取数据
 
@@ -85,7 +85,6 @@ export default {
         this.loading = true;
         this.loadingSuccess = false;
         this.fans = [];
-        this.fansPages = [];
         this.tip.show = false;
         this.tip.netError = false;
         this.tip.businessError = false;
@@ -94,44 +93,43 @@ export default {
 
         let data = {
           userId: this.$store.state.userInfo.userId,
+          pageIndex: this.fansPage.currentPage
         };
 
-        this.$http
-          .get(this.globalApi.RetrieveFansApi, { params: data })
-          .then(
-            response => {
-              // console.log(response.data);
-              this.loading = false;
-              this.loadingSuccess = true;
-              if (response.data.status != 200) {
-                console.log(response.data.message);
-                this.tip.show = true;
-                this.tip.businessError = true;
-                this.tip.errorMessage = response.data.message;
-              } else {
-                if (response.data.data.length == 0) {
-                  this.tip.show = true;
-                  this.tip.emptyFans = true;
-                } else {
-                  this.fans = response.data.data;
-                  this.fansPages = this.fans.slice(
-                    (this.fansPage.currentPage - 1) * 10,
-                    this.fansPage.currentPage * 10
-                  );
-                  this.fansPage.showPage = true;
-
-                  //存入vuex;
-                  this.$store.commit("addFans", response.data.data);
-                }
-              }
-            },
-            err => {
-              this.loading = false;
-              this.loadingSuccess = false;
+        this.$http.get(this.globalApi.RetrieveFansApi, { params: data }).then(
+          response => {
+            // console.log(response.data);
+            this.loading = false;
+            this.loadingSuccess = true;
+            if (response.data.errorCode != null) {
+              console.log(response.data.errorMessage);
               this.tip.show = true;
-              this.tip.netError = true;
+              this.tip.businessError = true;
+              this.tip.errorMessage = response.data.errorMessage;
+            } else {
+              if (response.data.users.length == 0) {
+                this.tip.show = true;
+                this.tip.emptyFans = true;
+              } else {
+                this.fans = response.data.users;
+                this.fansPage.showPage = true;
+
+                //设置分页信息
+                this.fansPage.currentPage = response.data.currentPage;
+                this.fansPage.totalPages = response.data.totalPages;
+
+                //存入vuex;
+                // this.$store.commit("addFans", response.data.data);
+              }
             }
-          );
+          },
+          err => {
+            this.loading = false;
+            this.loadingSuccess = false;
+            this.tip.show = true;
+            this.tip.netError = true;
+          }
+        );
       }
     }
   },

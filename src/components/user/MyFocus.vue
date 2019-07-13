@@ -6,14 +6,14 @@
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
-          <UserList :user="user" v-for="(user,index) in focusPages" :key="index"></UserList>
+          <UserList :user="user" v-for="(user,index) in focus" :key="index"></UserList>
           <!--分页-->
           <div class="page" v-show="focusPage.showPage">
             <el-pagination
               background
               layout="prev, pager, next"
-              :total="focus.length"
               :page-size="10"
+              :page-count="focusPage.totalPages"
               @current-change="handleCurrentChange"
               :current-page="focusPage.currentPage"
             ></el-pagination>
@@ -49,7 +49,8 @@ export default {
 
       focusPage: {
         showPage: false,
-        currentPage: 1
+        currentPage: 1,
+        totalPages: ""
       },
 
       showCard: false,
@@ -71,13 +72,13 @@ export default {
     refresh() {
       //vuex存在数据
       if (this.$store.state.focus.length != 0) {
-        this.loading = false;
-        this.loadingSuccess = true;
-        this.focus = this.$store.state.focus;
-        this.focusPages = this.focus.slice(
-          (this.focusPage.currentPage - 1) * 10,
-          this.focusPage.currentPage * 10
-        );
+        // this.loading = false;
+        // this.loadingSuccess = true;
+        // this.focus = this.$store.state.focus;
+        // this.focusPages = this.focus.slice(
+        //   (this.focusPage.currentPage - 1) * 10,
+        //   this.focusPage.currentPage * 10
+        // );
       } else {
         //从服务器获取数据
 
@@ -85,7 +86,6 @@ export default {
         this.loading = true;
         this.loadingSuccess = false;
         this.focus = [];
-        this.focusPages = [];
         this.tip.show = false;
         this.tip.netError = false;
         this.tip.businessError = false;
@@ -94,44 +94,43 @@ export default {
 
         let data = {
           userId: this.$store.state.userInfo.userId,
+          pageIndex: this.focusPage.currentPage
         };
 
-        this.$http
-          .get(this.globalApi.RetrieveFocusApi, { params: data })
-          .then(
-            response => {
-              // console.log(response.data);
-              this.loading = false;
-              this.loadingSuccess = true;
-              if (response.data.status != 200) {
-                console.log(response.data.message);
-                this.tip.show = true;
-                this.tip.businessError = true;
-                this.tip.errorMessage = response.data.message;
-              } else {
-                if (response.data.data.length == 0) {
-                  this.tip.show = true;
-                  this.tip.emptyFocus = true;
-                } else {
-                  this.focus = response.data.data;
-                  this.focusPages = this.focus.slice(
-                    (this.focusPage.currentPage - 1) * 10,
-                    this.focusPage.currentPage * 10
-                  );
-                  this.focusPage.showPage = true;
-
-                  //存入vuex;
-                  this.$store.commit("addFocus", response.data.data);
-                }
-              }
-            },
-            err => {
-              this.loading = false;
-              this.loadingSuccess = false;
+        this.$http.get(this.globalApi.RetrieveFocusApi, { params: data }).then(
+          response => {
+            // console.log(response.data);
+            this.loading = false;
+            this.loadingSuccess = true;
+            if (response.data.errorCode != null) {
+              console.log(response.data.erroMessage);
               this.tip.show = true;
-              this.tip.netError = true;
+              this.tip.businessError = true;
+              this.tip.errorMessage = response.data.errorMessage;
+            } else {
+              if (response.data.users.length == 0) {
+                this.tip.show = true;
+                this.tip.emptyFocus = true;
+              } else {
+                this.focus = response.data.users;
+                this.focusPage.showPage = true;
+
+                //设置分页信息
+                this.focusPage.currentPage = response.data.currentPage;
+                this.focusPage.totalPages = response.data.totalPages;
+
+                //存入vuex;
+                // this.$store.commit("addFocus", response.data.data);
+              }
             }
-          );
+          },
+          err => {
+            this.loading = false;
+            this.loadingSuccess = false;
+            this.tip.show = true;
+            this.tip.netError = true;
+          }
+        );
       }
     }
   },

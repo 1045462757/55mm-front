@@ -6,14 +6,14 @@
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
-          <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
+          <ActionList :action="action" v-for="(action,index) in actions" :key="index"></ActionList>
           <!--分页-->
           <div class="page" v-show="myActionsPage.showPage">
             <el-pagination
               background
               layout="prev, pager, next"
-              :total="actions.length"
               :page-size="10"
+              :page-count="myActionsPage.totalPages"
               @current-change="handleCurrentChange"
               :current-page="myActionsPage.currentPage"
             ></el-pagination>
@@ -49,35 +49,32 @@ export default {
 
       myActionsPage: {
         showPage: false,
-        currentPage: 1
+        currentPage: 1,
+        totalPages: ""
       },
 
       showCard: false,
-      actions: [],
-      actionPages: []
+      actions: []
     };
   },
   methods: {
     //分页
     handleCurrentChange(currentPage) {
       this.myActionsPage.currentPage = currentPage;
-      this.actionPages = this.actions.slice(
-        (this.myActionsPage.currentPage - 1) * 10,
-        this.myActionsPage.currentPage * 10
-      );
+      this.refresh();
     },
 
     //获取动态
     refresh() {
       //vuex存在数据
       if (this.$store.state.myActions.length != 0) {
-        this.loading = false;
-        this.loadingSuccess = true;
-        this.actions = this.$store.state.myActions;
-        this.actionPages = this.actions.slice(
-          (this.myActionsPage.currentPage - 1) * 10,
-          this.myActionsPage.currentPage * 10
-        );
+        // this.loading = false;
+        // this.loadingSuccess = true;
+        // this.actions = this.$store.state.myActions;
+        // this.actionPages = this.actions.slice(
+        //   (this.myActionsPage.currentPage - 1) * 10,
+        //   this.myActionsPage.currentPage * 10
+        // );
       } else {
         //从服务器获取数据
 
@@ -85,7 +82,6 @@ export default {
         this.loading = true;
         this.loadingSuccess = false;
         this.actions = [];
-        this.actionPages = [];
         this.tip.show = false;
         this.tip.netError = false;
         this.tip.businessError = false;
@@ -94,7 +90,8 @@ export default {
 
         let data = {
           userId: this.$store.state.userInfo.userId,
-          type: 1
+          type: 1,
+          pageIndex: this.myActionsPage.currentPage
         };
 
         this.$http
@@ -104,25 +101,25 @@ export default {
               // console.log(response.data);
               this.loading = false;
               this.loadingSuccess = true;
-              if (response.data.status != 200) {
-                console.log(response.data.message);
+              if (response.data.errorCode != null) {
+                console.log(response.data.errorMessage);
                 this.tip.show = true;
                 this.tip.businessError = true;
-                this.tip.errorMessage = response.data.message;
+                this.tip.errorMessage = response.data.errorMessage;
               } else {
-                if (response.data.data.length == 0) {
+                if (response.data.actions.length == 0) {
                   this.tip.show = true;
                   this.tip.emptyAction = true;
                 } else {
-                  this.actions = response.data.data;
-                  this.actionPages = this.actions.slice(
-                    (this.myActionsPage.currentPage - 1) * 10,
-                    this.myActionsPage.currentPage * 10
-                  );
+                  this.actions = response.data.actions;
                   this.myActionsPage.showPage = true;
 
+                  //设置分页信息
+                  this.myActionsPage.currentPage = response.data.currentPage;
+                  this.myActionsPage.totalPages = response.data.totalPages;
+
                   //存入vuex;
-                  this.$store.commit("addMyActions", response.data.data);
+                  // this.$store.commit("addMyActions", response.data.data);
                 }
               }
             },

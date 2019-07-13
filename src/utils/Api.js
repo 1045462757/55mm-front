@@ -1,10 +1,10 @@
 //全局Api接口
 
 //本地测试
-// const http = "https://127.0.0.1:8090";
+const http = "https://127.0.0.1:8090";
 
 //生产环境
-const http = "https://hylovecode.cn:8090"
+// const http = "https://hylovecode.cn:8090"
 
 const globalAPI = {
 
@@ -83,6 +83,9 @@ const globalAPI = {
     //取消收藏动态(DELETE)
     DeleteActionCollectionApi: http + '/actionCollection',
 
+    //条件查询动态
+    RetrieveActionListForConditionsApi: http + '/actions/conditions',
+
 
     /**
      * Restful Api
@@ -99,7 +102,24 @@ const globalAPI = {
     UpdateMessageIsReadApi: http + '/message/read',
 
     //接收约拍(PUT)
-    UpdateMessageIsAcceptApi: http + '/message/accept'
+    UpdateMessageIsAcceptApi: http + '/message/accept',
+
+    /**
+     * 后台管理
+     * 2019年6月20日08:50:56
+     */
+    GetAllUsersApi: http + "/admin/users",
+
+    /**
+     * Restful Api
+     * 标签
+     * 2019年7月13日10:58:53
+     */
+    //增加标签
+    CreateTagApi: http + "/tag",
+
+    //删除标签
+    DeleteTagApi: http + "/tag"
 }
 
 export default globalAPI

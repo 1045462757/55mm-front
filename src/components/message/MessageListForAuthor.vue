@@ -91,10 +91,10 @@ export default {
           response => {
             // console.log(response.data);
 
-            if (response.data.status != 200) {
-              console.log(response.data.message);
+            if (response.data.errorCode!=null) {
+              console.log(response.data.errorMessage);
               this.$message({
-                message: response.data.message,
+                message: response.data.errorMessage,
                 type: "error",
                 center: true,
                 duration: 2000
@@ -137,10 +137,10 @@ export default {
             response => {
               // console.log(response.data);
 
-              if (response.data.status != 200) {
-                console.log(response.data.message);
+              if (response.data.errorCode!=null) {
+                console.log(response.data.errorMessage);
                 this.$message({
-                  message: response.data.message,
+                  message: response.data.errorMessage,
                   type: "error",
                   center: true,
                   duration: 2000

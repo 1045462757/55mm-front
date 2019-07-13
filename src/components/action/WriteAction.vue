@@ -73,6 +73,26 @@
           </el-form-item>
         </div>
 
+        <!--动态标签-->
+        <div>
+          <el-tag
+            :key="tag"
+            v-for="tag in tags"
+            closable
+            :disable-transitions="false"
+            @close="handleClose(tag)"
+          >{{tag.name}}</el-tag>
+          <el-input
+            class="input-new-tag"
+            v-if="inputVisible"
+            v-model="inputValue"
+            ref="saveTagInput"
+            size="small"
+            @blur="handleInputConfirm"
+          ></el-input>
+          <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 添加标签</el-button>
+        </div>
+
         <div class="clear"></div>
 
         <el-upload
@@ -129,8 +149,7 @@ const toolbarOptions = [
   [{ font: [] }],
   [{ align: [] }],
   ["link", "image"],
-  ["clean"]
-  ["image"]
+  ["clean"]["image"]
 ];
 export default {
   name: "WriteAction",
@@ -141,6 +160,8 @@ export default {
         return callback(new Error("价格不能为空"));
       } else if (value <= 0) {
         return callback(new Error("请输入正整数"));
+      } else if (value > 10000) {
+        return callback(new Error("价格不能大于10000"));
       }
       setTimeout(() => {
         if (!Number.isInteger(value)) {
@@ -189,7 +210,12 @@ export default {
         address: "",
         cost: "",
         content: ""
-      }
+      },
+
+      //标签相关属性
+      tags: [],
+      inputVisible: false,
+      inputValue: ""
     };
   },
   methods: {
@@ -211,11 +237,11 @@ export default {
       // console.log(res);
       let quill = this.$refs.myQuillEditor.quill;
       // 如果上传成功
-      if (res.status == 200) {
+      if (res.errorCode == null) {
         // 获取光标所在位置
         let length = quill.getSelection().index;
         // 插入图片  res.data为服务器返回的图片地址
-        quill.insertEmbed(length, "image", res.data);
+        quill.insertEmbed(length, "image", res);
         // 调整光标到最后
         quill.setSelection(length + 1);
       } else {
@@ -263,24 +289,29 @@ export default {
       } else {
         this.$Loading.start();
 
+        let tagIdList = [];
+
+        for (let i = 0; i < this.tags.length; i++) {
+          tagIdList.push(this.tags[i].tagId);
+        }
+
         let data = {
-          author: {
-            userId: this.$store.state.userInfo.userId
-          },
+          authorId: this.$store.state.userInfo.userId,
           title: this.ActionForm.title,
           address: this.ActionForm.address,
           cost: this.ActionForm.cost,
-          content: this.ActionForm.content
+          content: this.ActionForm.content,
+          tags: tagIdList
         };
 
         this.$http.post(this.globalApi.CreateActionApi, data).then(
           response => {
             this.$Loading.finish();
             // console.log(response.data);
-            if (response.data.status != 200) {
+            if (response.data.errorCode != null) {
               //failed
               this.$message({
-                message: response.data.message,
+                message: response.data.errorMessage,
                 type: "error",
                 center: true,
                 duration: 1000
@@ -355,17 +386,18 @@ export default {
             title: this.ActionForm.title,
             address: this.ActionForm.address,
             cost: this.ActionForm.cost,
-            content: this.ActionForm.content
+            content: this.ActionForm.content,
+            tags: this.tags
           };
 
           this.$http.put(this.globalApi.UpdateActionApi, data).then(
             response => {
               this.$Loading.finish();
               // console.log(response.data);
-              if (response.data.status != 200) {
+              if (response.data.errorCode != null) {
                 //failed
                 this.$message({
-                  message: response.data.message,
+                  message: response.data.errorMessage,
                   type: "error",
                   center: true,
                   duration: 1000
@@ -411,6 +443,103 @@ export default {
         center: true,
         duration: 2000
       });
+    },
+
+    //删除标签
+    handleClose(tag) {
+      let data = {
+        tagId: tag.tagId
+      };
+      this.$http
+        .delete(this.globalApi.DeleteTagApi, { body: data, emulateJSON: true })
+        .then(
+          response => {
+            this.$Loading.finish();
+            // console.log(response.data);
+            if (response.data.errorCode != null) {
+              //failed
+              this.$message({
+                message: response.data.errorMessage,
+                type: "error",
+                center: true,
+                duration: 1000
+              });
+            } else {
+              this.tags.splice(this.tags.indexOf(tag), 1);
+            }
+          },
+          err => {
+            this.$Loading.error();
+            this.$message({
+              message: "删除标签失败:服务器异常",
+              type: "error",
+              center: true,
+              duration: 2000
+            });
+          }
+        );
+
+      // this.tags.splice(this.tags.indexOf(tag), 1);
+    },
+
+    //展示标签输入框
+    showInput() {
+      this.inputVisible = true;
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+
+    //确认标签
+    handleInputConfirm() {
+      let inputValue = this.inputValue;
+      // if (inputValue) {
+      //   this.tags.push(inputValue);
+      // }
+      // this.inputVisible = false;
+      // this.inputValue = "";
+
+      //判断标签长度
+      if (inputValue.length == 0) {
+        return;
+      }
+
+      //后台提交，错误回滚
+
+      let data = {
+        tagName: inputValue
+      };
+
+      this.$http
+        .post(this.globalApi.CreateTagApi, data, { emulateJSON: true })
+        .then(
+          response => {
+            this.$Loading.finish();
+            // console.log(response.data);
+            if (response.data.errorCode != null) {
+              //failed
+              this.$message({
+                message: response.data.errorMessage,
+                type: "error",
+                center: true,
+                duration: 1000
+              });
+            } else {
+              this.tags.push(response.data);
+              this.inputVisible = false;
+              this.inputValue = "";
+            }
+          },
+          err => {
+            this.$Loading.error();
+            this.$message({
+              message: "添加标签失败:服务器异常",
+              type: "error",
+              center: true,
+              duration: 2000
+            });
+          }
+        );
     }
   },
   mounted() {
@@ -426,12 +555,17 @@ export default {
     }
     this.ActionForm.content = localStorage.getItem("content");
     this.permission = localStorage.getItem("permission");
+    if (localStorage.getItem("tags")) {
+      this.tags = JSON.parse(localStorage.getItem("tags"));
+    }
+
     localStorage.removeItem("actionId");
     localStorage.removeItem("title");
     localStorage.removeItem("address");
     localStorage.removeItem("cost");
     localStorage.removeItem("content");
     localStorage.removeItem("permission");
+    localStorage.removeItem("tags");
   }
 };
 </script>
@@ -490,5 +624,22 @@ export default {
 .action-form {
   width: 95%;
   margin: 20px auto;
+}
+
+/*标签style*/
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
 }
 </style>

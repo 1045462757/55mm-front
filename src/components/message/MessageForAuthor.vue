@@ -6,18 +6,14 @@
       </div>
       <div v-loading="loading" element-loading-text="玩命加载中..." class="main">
         <div v-if="loadingSuccess">
-          <MessageListForAuthor
-            :message="message"
-            v-for="(message,index) in messagePages"
-            :key="index"
-          ></MessageListForAuthor>
+          <MessageListForAuthor :message="message" v-for="(message,index) in messages" :key="index"></MessageListForAuthor>
           <!--分页-->
           <div class="page" v-show="messagePage.showPage">
             <el-pagination
               background
               layout="prev, pager, next"
-              :total="messages.length"
               :page-size="10"
+              :page-count="messagePage.totalPages"
               @current-change="handleCurrentChange"
               :current-page="messagePage.currentPage"
             ></el-pagination>
@@ -55,20 +51,17 @@ export default {
       showCard: false,
       messagePage: {
         showPage: false,
-        currentPage: 1
+        currentPage: 1,
+        totalPages: ""
       },
-      messages: [],
-      messagePages: []
+      messages: []
     };
   },
   methods: {
     //分页
     handleCurrentChange(currentPage) {
       this.messagePage.currentPage = currentPage;
-      this.actionPages = this.actions.slice(
-        (this.messagePage.currentPage - 1) * 10,
-        this.messagePage.currentPage * 10
-      );
+      this.getMessageForAuthor();
     },
 
     /**
@@ -80,7 +73,6 @@ export default {
       this.loading = true;
       this.loadingSuccess = false;
       this.messages = [];
-      this.messagePages = [];
       this.tip.show = false;
       this.tip.netError = false;
       this.tip.businessError = false;
@@ -89,7 +81,8 @@ export default {
       this.messagePage.showPage = false;
 
       let data = {
-        actionAuthorId: this.$store.state.userInfo.userId
+        actionAuthorId: this.$store.state.userInfo.userId,
+        pageIndex: this.messagePage.currentPage
       };
 
       this.$http
@@ -100,22 +93,24 @@ export default {
             this.loading = false;
             this.loadingSuccess = true;
 
-            if (response.data.status != 200) {
-              console.log(response.data.message);
+            if (response.data.errorCode != null) {
+              console.log(response.data.errorMessage);
               this.tip.show = true;
               this.tip.businessError = true;
-              this.tip.errorMessage = response.data.message;
+              this.tip.errorMessage = response.data.errorMessage;
             } else {
-              if (response.data.data.messageList.length == 0) {
+              if (response.data.messageList.messages.length == 0) {
                 this.tip.show = true;
                 this.tip.emptyMessage = true;
               } else {
-                this.messages = response.data.data.messageList;
-                this.messagePages = this.messages.slice(
-                  (this.messagePage.currentPage - 1) * 10,
-                  this.messagePage.currentPage * 10
-                );
+                this.messages = response.data.messageList.messages;
                 this.messagePage.showPage = true;
+
+                //设置分页信息
+                this.messagePage.currentPage =
+                  response.data.messageList.currentPage;
+                this.messagePage.totalPages =
+                  response.data.messageList.totalPages;
               }
             }
           },

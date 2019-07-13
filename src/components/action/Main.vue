@@ -1,42 +1,48 @@
 <template>
   <transition name="el-zoom-in-center">
-    <div v-show="show">
+    <div v-show="showCard">
       <!--搜索-->
       <el-card class="search" shadow="hover">
         <div id="city">
           <span>地区:</span>
-          <el-cascader placeholder="选择城市" :options="options" filterable change-on-select></el-cascader>
+          <el-cascader
+            placeholder="选择城市"
+            :options="options"
+            filterable
+            change-on-select
+            v-model="conditions.address"
+          ></el-cascader>
         </div>
 
         <div id="money">
           <span>费用:</span>
-          <el-cascader placeholder="选择费用" :options="money"></el-cascader>
+          <el-cascader placeholder="选择费用" :options="money" v-model="conditions.cost"></el-cascader>
         </div>
 
         <div id="type">
           <span>身份:</span>
-          <el-cascader placeholder="选择身份" :options="type"></el-cascader>
+          <el-cascader placeholder="选择身份" :options="type" v-model="conditions.authorType"></el-cascader>
         </div>
 
         <div id="sex">
           <span>性别:</span>
-          <el-cascader placeholder="选择性别" :options="sex"></el-cascader>
+          <el-cascader placeholder="选择性别" :options="sex" v-model="conditions.authorSex"></el-cascader>
         </div>
         <div class="clear"></div>
         <el-button type="primary" round id="btn" @click="search()">搜索</el-button>
       </el-card>
       <div class="main" v-loading="loading" element-loading-text="玩命加载中..." shadow="hover">
         <div v-if="loadingSuccess">
-          <ActionList :action="action" v-for="(action,index) in actionPages" :key="index"></ActionList>
+          <ActionList :action="action" v-for="(action,index) in actions" :key="index"></ActionList>
           <!--分页-->
           <div class="page">
             <el-pagination
               background
               layout="prev, pager, next"
-              :total="actions.length"
+              :page-count="page.totalPages"
               :page-size="10"
               @current-change="handleCurrentChange"
-              :current-page="currentPage"
+              :current-page="page.currentPage"
             ></el-pagination>
           </div>
         </div>
@@ -69,13 +75,15 @@ export default {
         errorMessage: ""
       },
 
-      currentPage: 1,
-      show: false,
+      page: {
+        currentPage: 1,
+        totalPages: ""
+      },
+      showCard: false,
       actions: [],
-      actionPages: [],
       options: [
         {
-          value: "全部",
+          value: "all",
           label: "全部"
           // children: []
         },
@@ -256,29 +264,29 @@ export default {
           label: "全部"
         },
         {
-          value: "0-50",
+          value: "1",
           label: "0-50"
         },
         {
-          value: "50-200",
+          value: "2",
           label: "50-200"
         },
         {
-          value: "200-500",
+          value: "3",
           label: "200-500"
         },
         {
-          value: "500-1000",
+          value: "4",
           label: "500-1000"
         },
         {
-          value: "1000--",
+          value: "5",
           label: "1000以上"
         }
       ],
       type: [
         {
-          value: "全部",
+          value: "all",
           label: "全部"
         },
         {
@@ -316,34 +324,120 @@ export default {
           label: "全部"
         },
         {
-          value: "male",
+          value: "男",
           label: "男"
         },
         {
-          value: "female",
+          value: "女",
           label: "女"
         }
-      ]
+      ],
+      conditions: {
+        address: "",
+        authorType: "",
+        authorSex: "",
+        cost: "",
+        minCost: "",
+        maxCost: ""
+      }
     };
   },
   methods: {
     //分页
     handleCurrentChange(currentPage) {
-      this.currentPage = currentPage;
-      this.actionPages = this.actions.slice(
-        (this.currentPage - 1) * 10,
-        this.currentPage * 10
-      );
+      this.page.currentPage = currentPage;
+      this.refresh();
+      // this.search();
     },
 
     //搜索
     search() {
-      this.$message({
-        message: "尚在开发",
-        type: "info",
-        center: true,
-        duration: 2000
-      });
+      //价格
+      if (this.conditions.cost == "all") {
+        this.conditions.minCost = null;
+        this.conditions.maxCost = null;
+      } else if (this.conditions.cost == "1") {
+        this.conditions.minCost = 0;
+        this.conditions.maxCost = 50;
+      } else if (this.conditions.cost == "2") {
+        this.conditions.minCost = 50;
+        this.conditions.maxCost = 200;
+      } else if (this.conditions.cost == "3") {
+        this.conditions.minCost = 200;
+        this.conditions.maxCost = 500;
+      } else if (this.conditions.cost == "4") {
+        this.conditions.minCost = 500;
+        this.conditions.maxCost = 1000;
+      } else if (this.conditions.cost == "5") {
+        this.conditions.minCost = 1000;
+        this.conditions.maxCost = 10000;
+      }
+
+      //地区
+      if (this.conditions.address[0] == "all") {
+        this.conditions.address[0] = null;
+      }
+
+      //作者类别
+      if (this.conditions.authorType[0] == "all") {
+        this.conditions.authorType[0] = null;
+      }
+
+      //作者性别
+      if (this.conditions.authorSex[0] == "all") {
+        this.conditions.authorSex[0] = null;
+      }
+
+      //状态初始化
+      this.loading = true;
+      this.loadingSuccess = false;
+      this.actions = [];
+      this.tip.show = false;
+      this.tip.netError = false;
+      this.tip.businessError = false;
+      this.tip.errorMessage = "";
+
+      let data = {
+        pageIndex: this.page.currentPage,
+        address: this.conditions.address[0],
+        authorType: this.conditions.authorType[0],
+        authorSex: this.conditions.authorSex[0],
+        minCost: this.conditions.minCost,
+        maxCost: this.conditions.maxCost
+      };
+
+      this.$http
+        .get(this.globalApi.RetrieveActionListForConditionsApi, {
+          params: data
+        })
+        .then(
+          response => {
+            // console.log(response.data);
+            this.loading = false;
+            this.loadingSuccess = true;
+
+            if (response.data.errorCode != null) {
+              console.log(response.data);
+              this.tip.show = true;
+              this.tip.businessError = true;
+              this.tip.errorMessage = response.data.errorMessage;
+            } else {
+              //设置分页信息
+              this.page.currentPage = response.data.currentPage;
+              this.page.totalPages = response.data.totalPages;
+
+              this.actions = response.data.actions;
+              //存入vuex;
+              // this.$store.commit("addActions", response.data.data);
+            }
+          },
+          err => {
+            this.loading = false;
+            this.loadingSuccess = false;
+            this.tip.show = true;
+            this.tip.netError = true;
+          }
+        );
     },
 
     //获取动态
@@ -364,14 +458,14 @@ export default {
         this.loading = true;
         this.loadingSuccess = false;
         this.actions = [];
-        this.actionPages = [];
         this.tip.show = false;
         this.tip.netError = false;
         this.tip.businessError = false;
         this.tip.errorMessage = "";
 
         let data = {
-          type: 2
+          type: 2,
+          pageIndex: this.page.currentPage
         };
 
         this.$http
@@ -381,19 +475,20 @@ export default {
               // console.log(response.data);
               this.loading = false;
               this.loadingSuccess = true;
-              if (response.data.status != 200) {
-                console.log(response.data.message);
+
+              if (response.data.errorCode != null) {
+                console.log(response.data);
                 this.tip.show = true;
                 this.tip.businessError = true;
-                this.tip.errorMessage = response.data.message;
+                this.tip.errorMessage = response.data.errorMessage;
               } else {
-                this.actions = response.data.data;
-                this.actionPages = this.actions.slice(
-                  (this.currentPage - 1) * 10,
-                  this.currentPage * 10
-                );
+                //设置分页信息
+                this.page.currentPage = response.data.currentPage;
+                this.page.totalPages = response.data.totalPages;
+
+                this.actions = response.data.actions;
                 //存入vuex;
-                this.$store.commit("addActions", response.data.data);
+                // this.$store.commit("addActions", response.data.data);
               }
             },
             err => {
@@ -407,7 +502,7 @@ export default {
     }
   },
   mounted() {
-    this.show = true;
+    this.showCard = true;
 
     this.refresh();
   }

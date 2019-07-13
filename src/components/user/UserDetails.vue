@@ -2,7 +2,7 @@
   <transition name="el-zoom-in-center">
     <el-card class="action-details" v-show="showCard" shadow="hover">
       <div slot="header">
-        <span id="card-title">{{userInfoForm.name}}的信息</span>
+        <span id="card-title">{{userInfoForm.name}}</span>
         <el-switch
           v-if="!permisstion"
           v-model="userInfoForm.isFocus"
@@ -72,6 +72,7 @@
 <script>
 import Tip from "@/components/general/Tip";
 import store from "@/vuex/store.js";
+import EventVue from "@/utils/EventVue.js";
 export default {
   name: "UserDetails",
   components: { Tip },
@@ -117,14 +118,14 @@ export default {
             // console.log(response.data);
             this.loading = false;
             this.loadingSuccess = true;
-            if (response.data.status != 200) {
-              console.log(response.data.message);
+            if (response.data.errorCode!=null) {
+              console.log(response.data.errorMessage);
               this.tip.show = true;
               this.tip.businessError = true;
-              this.tip.errorMessage = response.data.message;
+              this.tip.errorMessage = response.data.errorMessage;
             } else {
-              this.userInfoForm = response.data.data;
-              if (response.data.data.introduction == null) {
+              this.userInfoForm = response.data;
+              if (response.data.introduction == null) {
                 this.userInfoForm.introduction = "这个人太懒了,什么都没写";
               }
             }
@@ -142,6 +143,19 @@ export default {
      * 关注用户
      */
     focus() {
+      //判断是否登录
+      if (!this.$store.state.userInfo.userId) {
+        //跳转登录
+        EventVue.$emit("login");
+        setTimeout(
+          function() {
+            this.userInfoForm.isFocus = false;
+          }.bind(this),
+          500
+        );
+        return;
+      }
+
       if (this.userInfoForm.isFocus == true) {
         this.$Loading.start();
         let data = {
@@ -157,9 +171,9 @@ export default {
             response => {
               this.$Loading.finish();
               // console.log(response.data);
-              if (response.data.status != 200) {
+              if (response.data.errorCode!=null) {
                 this.$message({
-                  message: response.data.message,
+                  message: response.data.errorMessage,
                   type: "error",
                   center: true,
                   duration: 2000
@@ -217,9 +231,9 @@ export default {
                 response => {
                   this.$Loading.finish();
                   // console.log(response.data);
-                  if (response.data.status != 200) {
+                  if (response.data.errorCode!=null) {
                     this.$message({
-                      message: response.data.message,
+                      message: response.data.errorMessage,
                       type: "error",
                       center: true,
                       duration: 2000
